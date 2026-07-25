@@ -1,0 +1,9 @@
+.DS_Store
+
+# 원본 영상 (변환 전 소스 — sync_video.py가 백업 폴더로 옮기지만 혹시 남아있을 때 대비)
+*.mov
+*.MOV
+
+# RSVP 서버 런타임 파일 (라즈베리파이에서 생성되는 DB)
+server/rsvp.db
+server/node_modules/
