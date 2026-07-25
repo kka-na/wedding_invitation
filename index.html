@@ -340,6 +340,12 @@ section{position:relative;}
 .loc-card .info b{color:var(--ink);font-weight:700;}
 .loc-card .note{margin-top:16px;font-size:13px;font-weight:500;color:var(--ink2);}
 .loc-card .note::before{content:'※ ';}
+/* 추천 경로 강조 (봉은사역): 본문만 진하게 */
+.stop-rec .info{color:var(--ink);}
+.rec-badge{
+  display:inline-block;margin-left:6px;padding:3px 10px;border-radius:99px;
+  background:var(--primary);color:#fff;font-size:11px;font-weight:700;vertical-align:2px;
+}
 /* 지하철 노선 뱃지 (실제 노선 색) */
 .line{
   display:inline-flex;width:20px;height:20px;margin-right:8px;
@@ -351,7 +357,7 @@ section{position:relative;}
 .l7{background:#747F00;}
 .gate{
   display:inline-block;margin-left:6px;padding:3px 10px;border-radius:99px;
-  background:var(--ink);color:#fff;font-size:12px;font-weight:700;vertical-align:2px;
+  background:var(--primary);color:#fff;font-size:12px;font-weight:700;vertical-align:2px;
 }
 /* 버스 정류장 안내 (서울 버스 색상) */
 .bus-stop{margin-top:22px;}
@@ -375,7 +381,21 @@ section{position:relative;}
 .map-wrap{border-radius:18px;overflow:hidden;}
 .map-wrap img{width:100%;}
 /* 네이버 지도 (API 키 입력 시 약도 이미지 대신 표시) */
-#naver-map{display:none;width:100%;height:280px;}
+#naver-map{display:none;width:100%;height:200px;}
+/* 지도 커스텀 마커: 알약 라벨 + 아래 꼬리 */
+.nmarker{
+  position:absolute;transform:translate(-50%,calc(-100% - 8px));  /* 좌표 위에 중앙 정렬 */
+  padding:8px 16px;border-radius:99px;white-space:nowrap;
+  background:var(--primary);color:#fff;
+  font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:-.01em;
+  box-shadow:0 4px 14px rgba(0,0,0,.28);
+  cursor:pointer;
+}
+.nmarker i{
+  position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+  width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
+  border-top:7px solid var(--primary);
+}
 .map-ph{padding:70px 20px;text-align:center;color:var(--ink2);font-size:13px;background:var(--gray);border-radius:18px;}
 .map-links{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
 .map-links a{
@@ -438,6 +458,7 @@ section{position:relative;}
 .rh-person{display:flex;flex-direction:column;align-items:center;}
 .rh-person img{height:150px;object-fit:contain;}   /* 고정 헤더 사진 크기 */
 .rh-person p{margin-top:10px;font-size:22px;font-weight:800;letter-spacing:-.01em;}
+.rh-person .en{margin-top:2px;font-size:13px;font-weight:500;color:var(--ink2);letter-spacing:.05em;}
 /* 프로필 비교 그리드 */
 .profile-grid{max-width:640px;margin:0 auto;padding:8px 24px 28px;}
 .prof-row{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding-top:44px;}
@@ -510,9 +531,6 @@ section{position:relative;}
 }
 
 /* ---------- 푸터 ---------- */
-footer{text-align:left;padding:56px 24px 80px;background:var(--bg);max-width:980px;margin:0 auto;}
-footer .names{font-size:15px;font-weight:700;letter-spacing:.1em;}
-footer .thanks{font-size:12px;color:var(--ink2);margin-top:10px;}
 
 /* 토스트 */
 #toast{
@@ -732,12 +750,10 @@ footer .thanks{font-size:12px;color:var(--ink2);margin-top:10px;}
         <h4>예식장</h4>
         <p class="venue-name" id="venue-name">예식장명</p>
         <p class="venue-addr" id="venue-addr">주소 입력 예정</p>
+        <p class="info" style="margin-top:10px;">봉은사 맞은편 <b>"코엑스 북문"</b>으로 들어와 <br />바로 앞 에스컬레이터를 타고 <br />2층 아셈볼룸으로 오시면 됩니다.</p>
         <div class="map-wrap" style="margin-top:20px;">
           <div id="naver-map"></div>
           <img id="map-img" loading="lazy" decoding="async" src="./images/information/map.png" alt="예식장 약도" />
-        </div>
-        <div class="map-links" style="margin-top:12px;">
-          <a id="link-naver-venue" href="#" target="_blank" rel="noopener"><img src="./images/icons/naver.webp" alt="" />네이버 지도에서 보기</a>
         </div>
       </div>
       <div class="loc-card fade">
@@ -750,46 +766,28 @@ footer .thanks{font-size:12px;color:var(--ink2);margin-top:10px;}
         </div>
       </div>
       <div class="loc-card fade">
-        <h4>지하철</h4>
-        <p class="stop"><span class="line l9">9</span>봉은사역 7번 출구</p>
-        <p class="info">출구와 직접 연결된 통로로 진입, 아셈플라자를 지나 스타필드 코엑스몰로 들어오시면 됩니다.</p>
-        <p class="stop" style="margin-top:18px;"><span class="line l2">2</span>삼성역 5 · 6번 출구</p>
-        <p class="info">출구와 직접 연결된 통로로 진입, 밀레니엄 광장을 지나 스타필드 코엑스몰로 들어오시면 됩니다.</p>
-        <p class="stop" style="margin-top:18px;"><span class="line l7">7</span>청담역 2번 출구</p>
-        <p class="info">진행 방향 앞쪽 출구로 나와 직진, 도보 10~15분 후 아셈광장을 통해 들어오시면 됩니다.</p>
-        <div class="map-wrap" style="margin-top:20px;">
-          <img loading="lazy" decoding="async" src="./images/information/subway.png" alt="지하철 경로 안내" />
-        </div>
-      </div>
-      <div class="loc-card fade">
-        <h4>승용차 · 주차</h4>
+        <h4>승용차</h4>
         <p class="stop">코엑스 북문 주차장 <span class="gate">GATE 4</span></p>
-        <p class="info">내비게이션에 <b>'코엑스 북문 주차장'</b> 검색 (봉은사 맞은편)</p>
+        <p class="info">내비게이션에 <b>'코엑스 북문 주차장'</b> 검색</p>
         <p class="info">지하 2·3·4층 <b>블루구역</b>이 가장 가깝습니다.<br />
-        주차 후 지하 2층 입구 8 · 지하 3층 입구 11 · 지하 4층 입구 16, 17로 1층에 올라와,
-        북문 바로 앞 에스컬레이터를 타고 2층 아셈볼룸으로 오시면 됩니다.</p>
-        <p class="note">주차가 혼잡할 수 있으니 가급적 대중교통 이용을 부탁드립니다.</p>
+        지하 2층 <b>입구 8</b> · 지하 3층 <b>입구 11</b> <br /> 지하 4층 <b>입구 16, 17</b>로 1층에 올라와,
+        <br /><br />북문 바로 앞 에스컬레이터를 타고 <br />2층 아셈볼룸으로 오시면 됩니다.</p>
+        <p class="note">주차는 3시간 지원 됩니다.</p>
+        <p class="note">주차가 혼잡할 수 있습니다.</p>
       </div>
       <div class="loc-card fade">
-        <h4>버스 1 / 3</h4>
-        <div class="bus-stop">
-          <p class="stop">그랜드 인터컨티넨탈 호텔 앞 <span class="stop-no">23201</span></p>
-          <p class="info" style="margin-top:2px;">삼성역 5번 출구</p>
-          <p class="bus-lines"><span class="bt trunk">간선</span>146 · 333 · 341 · 360 · 740</p>
-          <p class="bus-lines"><span class="bt branch">지선</span>3411</p>
-          <p class="bus-lines"><span class="bt village">마을</span>강남07 · 강남08</p>
-          <p class="bus-lines"><span class="bt express">직행</span>500-2 · 1100 · 1700 · 2000 · 7007 · 8001 · 9303 · G3202 · M6450</p>
+        <h4>지하철</h4>
+        <div class="stop-rec">
+          <p class="stop"><span class="line l9">9</span>봉은사역 7번 출구 <span class="rec-badge">추천</span></p>
+          <p class="info">7번 출구로 나오셔서 오른쪽으로 보이는 <br />큰 계단을 이용하여 1층으로 올라 오신 후, <br />큰 도로를 따라 직진, 140m가량 이동하여 <br />북문 입구로 들어 오시면 됩니다.</p>
         </div>
-        <div class="bus-stop">
-          <p class="stop">코엑스아티움(무역센터) 앞 <span class="stop-no">23199</span></p>
-          <p class="bus-lines"><span class="bt trunk">간선</span>143 · 343</p>
-          <p class="bus-lines"><span class="bt branch">지선</span>2413</p>
-          <p class="bus-lines"><span class="bt village">마을</span>강남01 · 강남06 · 강남08</p>
-          <p class="bus-lines"><span class="bt express">직행</span>500-2 · 9407 · 9507 · 9607 · G3202</p>
-        </div>
+        <p class="stop" style="margin-top:18px;"><span class="line l2">2</span>삼성역 5 · 6번 출구</p>
+        <p class="info">출구와 직접 연결된 통로로 진입,<br />밀레니엄 광장을 지나 코엑스몰로 들어오시어 <br />컨벤션센터 이정표를 따라 오시면됩니다.</p>
+        <p class="stop" style="margin-top:18px;"><span class="line l7">7</span>청담역 2번 출구</p>
+        <p class="info">진행 방향 앞쪽 출구로 나와 직진,<br />도보 15분 후 아셈광장으로 들어오시면 됩니다.</p>
       </div>
       <div class="loc-card fade">
-        <h4>버스 2 / 3</h4>
+        <h4>버스</h4>
         <div class="bus-stop">
           <p class="stop">봉은사 건너편 <span class="stop-no">23191</span></p>
           <p class="bus-lines"><span class="bt trunk">간선</span>342</p>
@@ -803,22 +801,6 @@ footer .thanks{font-size:12px;color:var(--ink2);margin-top:10px;}
           <p class="bus-lines"><span class="bt village">마을</span>강남08</p>
           <p class="bus-lines"><span class="bt express">직행</span>500-2 · 9407 · 9507 · 9607 · G3202</p>
           <p class="bus-lines"><span class="bt limo">공항</span>6006</p>
-        </div>
-      </div>
-      <div class="loc-card fade">
-        <h4>버스 3 / 3</h4>
-        <div class="bus-stop">
-          <p class="stop">코엑스 도심공항 <span class="stop-no">23801</span></p>
-          <p class="bus-lines"><span class="bt limo">리무진</span>6103</p>
-        </div>
-        <div class="bus-stop">
-          <p class="stop">삼성역 7번 출구 <span class="stop-no">23197</span></p>
-          <p class="bus-lines"><span class="bt trunk">간선</span>143 · 146 · 301 · 342 · 343 · 345 · 401</p>
-          <p class="bus-lines"><span class="bt branch">지선</span>2413 · 2415 · 3217 · 3412 · 3414 · 3417 · 4318</p>
-          <p class="bus-lines"><span class="bt express">직행</span>9407 · 9507 · 9607</p>
-        </div>
-        <div class="map-wrap" style="margin-top:20px;">
-          <img loading="lazy" decoding="async" src="./images/information/bus.png" alt="버스 정류장 안내" />
         </div>
       </div>
     </div>
@@ -857,8 +839,8 @@ footer .thanks{font-size:12px;color:var(--ink2);margin-top:10px;}
     <!-- 스크롤 시 상단 고정: 사진 + 이름 -->
     <div class="rsvp-head">
       <div class="rsvp-head-inner">
-        <div class="rh-person"><img loading="lazy" decoding="async" src="./images/rsvp/groom.png" alt="신랑" /><p>한형진</p></div>
-        <div class="rh-person"><img loading="lazy" decoding="async" src="./images/rsvp/bridal.png" alt="신부" /><p>김가나</p></div>
+        <div class="rh-person"><img loading="lazy" decoding="async" src="./images/rsvp/groom.png" alt="신랑" /><p>한형진</p><p class="en">Hyungjin Han</p></div>
+        <div class="rh-person"><img loading="lazy" decoding="async" src="./images/rsvp/bridal.png" alt="신부" /><p>김가나</p><p class="en">Kana Kim</p></div>
       </div>
     </div>
 
@@ -896,10 +878,6 @@ footer .thanks{font-size:12px;color:var(--ink2);margin-top:10px;}
     </div>
   </section>
 
-  <footer class="fade">
-    <p class="names">형진 · 가나</p>
-    <p class="thanks">저희의 시작을 함께해 주셔서 감사합니다.</p>
-  </footer>
 
 <!-- 바텀시트 -->
 <div id="sheet-backdrop" onclick="closeSheet()"></div>
@@ -950,7 +928,7 @@ const CONFIG = {
   WEDDING_DATE: '2026-10-25T12:30:00+09:00',
 
   VENUE_NAME: '그래머시 코엑스 아셈볼룸',
-  VENUE_ADDR: '서울 강남구 영동대로 517 코엑스 컨벤션센터 2층',
+  VENUE_ADDR: '강남구 영동대로 517 코엑스 컨벤션센터 2층',
   NAVER_MAP_URL: 'https://naver.me/FMcvEUZS',
   KAKAO_MAP_URL: 'https://place.map.kakao.com/1151703248',
   TMAP_MAP_URL: 'https://tmap.life/f380ecf6',
@@ -959,8 +937,8 @@ const CONFIG = {
   // [발급 후 입력] 네이버클라우드 Maps API 키 (Web Dynamic Map의 Client ID)
   // 발급 전까지는 빈 문자열 유지 → 약도 이미지(map.png)가 표시됨
   NAVER_MAP_CLIENT_ID: 'wve9i9ups2',
-  VENUE_LAT: 37.5126,   // 코엑스 아셈볼룸 좌표 (필요 시 미세조정)
-  VENUE_LNG: 127.0602,
+  VENUE_LAT: 37.5128403,   // 코엑스 아셈볼룸 (네이버 지도 공식 좌표)
+  VENUE_LNG: 127.0586859,
 
   // [미정] 은행명·계좌번호 확정되면 아래 6줄 교체
   ACCOUNTS: {
@@ -1007,7 +985,6 @@ const CONFIG = {
 document.getElementById('venue-name').textContent = CONFIG.VENUE_NAME;
 document.getElementById('venue-addr').textContent = CONFIG.VENUE_ADDR;
 document.getElementById('link-naver').href = CONFIG.NAVER_MAP_URL;
-document.getElementById('link-naver-venue').href = CONFIG.NAVER_MAP_URL;
 document.getElementById('link-kakao').href = CONFIG.KAKAO_MAP_URL;
 document.getElementById('link-tmap').href = CONFIG.TMAP_MAP_URL;
 document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
@@ -1026,7 +1003,14 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
       center: pos, zoom: 16,
       scrollWheel: false,                    // 페이지 스크롤 방해 방지
     });
-    const marker = new naver.maps.Marker({ position: pos, map });
+    /* 커스텀 마커: '아셈볼룸' 라벨 알약 + 꼬리 (탭하면 네이버 지도 열림) */
+    const marker = new naver.maps.Marker({
+      position: pos, map,
+      icon: {
+        content: '<div class="nmarker">2층 아셈볼룸<i></i></div>',
+        anchor: new naver.maps.Point(0, 0),
+      },
+    });
     naver.maps.Event.addListener(marker, 'click',
       () => window.open(CONFIG.NAVER_MAP_URL, '_blank'));
   };
