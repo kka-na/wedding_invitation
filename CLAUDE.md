@@ -24,7 +24,9 @@ A Korean edit guide comment near the top of `<head>` maps common changes to thei
 
 ## RSVP backend
 
-`server/rsvp-server.js` is a self-hosted Express + better-sqlite3 API meant for a Raspberry Pi behind a Caddy HTTPS proxy (`https://sujihome.ddns.net:49200/api/rsvp`). **The plan of record (per comments in both files) is to replace this with a Google Form**: change `CONFIG.API_URL` and rewrite `submitRSVP()` to POST `FormData` to a formResponse URL with `entry.<id>` fields and `mode: 'no-cors'`. Note the server currently validates only `side/attend/name` — the front end also sends `phone` and `count`.
+RSVP submissions post to a Google Sheets-bound **Apps Script web app**, not a self-hosted server. `server/rsvp-apps-script.gs` holds the `doPost(e)` handler (appends a row via `SpreadsheetApp`); paste it into the target spreadsheet's Extensions → Apps Script, deploy as a web app (execute as me, access: anyone), and put the resulting `…/exec` URL in `CONFIG.API_URL`. Re-deploying (not just saving) is required after every script edit for changes to take effect. `submitRSVP()` POSTs a `FormData` body (`side/name/phone/attend/count`) with `mode: 'no-cors'` — the response can't be read cross-origin, so success is reported optimistically once the request is sent.
+
+`server/rsvp-server.js` (Express + better-sqlite3, meant for a Raspberry Pi behind Caddy) is the earlier self-hosted approach and is no longer wired up — kept for reference only.
 
 ## Conventions
 

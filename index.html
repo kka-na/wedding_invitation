@@ -187,7 +187,7 @@ section{position:relative;}
 }
 .hl-pager .dot.active{width:24px;opacity:1;}
 .hl-card{
-  flex:0 0 86%;max-width:400px;min-height:440px;
+  flex:0 0 86%;max-width:400px;aspect-ratio:344/486;  /* 애플 apple.com 프로모 카드 실측 비율 (344x486) */
   background:var(--gray);border-radius:28px;
   padding:40px 30px;
   scroll-snap-align:center;
@@ -236,23 +236,8 @@ section{position:relative;}
 /* 카드1 하단 이미지 (원본 비율 유지, 맨 아래로) */
 .hl-card1-img{width:100%;margin-top:auto;object-fit:contain;}
 
-/* 날짜 카드: 텍스트 왼쪽 위, 달력 아래 중앙, 큰 '10' 워터마크 */
+/* 날짜 카드: 텍스트 위쪽, 사진이 카드 아래 가장자리까지 채움 */
 .hl-date-card{position:relative;overflow:hidden;justify-content:space-between !important;}
-.cal-month{
-  position:absolute;top:-36px;right:-14px;margin:0;z-index:0;   /* 걸치는 정도 조절 */
-  font-size:150px;font-weight:800;line-height:1;letter-spacing:-.04em;
-  color:var(--ink);opacity:.06;                                  /* 워터마크 농도 */
-  pointer-events:none;
-}
-/* 미니 달력 */
-.mini-cal{width:100%;max-width:260px;margin:24px auto 0;border-collapse:collapse;table-layout:fixed;position:relative;z-index:1;}
-.mini-cal th{font-size:11px;font-weight:600;color:var(--ink2);height:28px;padding:0;text-align:center;}
-.mini-cal td{font-size:13px;color:var(--ink);text-align:center;height:34px;padding:0;vertical-align:middle;}
-.mini-cal td.hl{padding:0;}
-.mini-cal td.hl span{
-  display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;
-  background:var(--primary);color:#fff;border-radius:50%;font-weight:700;
-}
 
 /* ---------- 3. 드레스 컨셉 4종 ---------- */
 .dress{height:200vh;}  /* 2배 높이 → 스크롤하는 동안 이미지 고정+블러 */
@@ -269,7 +254,7 @@ section{position:relative;}
   color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.35);
 }
 .dress-label{right:28px;}                     /* 본문 줄바꿈 폭 확보 */
-.dress-label .num{font-size:15px;font-weight:700;opacity:.9;}
+.dress-label .num{font-size:15px;font-weight:800;opacity:.9;}
 .dress-label .name{font-size:30px;font-weight:800;letter-spacing:-.01em;margin-top:4px;line-height:1.3;}
 .dress-label .desc{margin-top:10px;font-size:14px;font-weight:500;line-height:1.75;color:rgba(255,255,255,.82);}
 /* 밝은 사진 위 텍스트는 어두운 색 (dark-label) */
@@ -298,22 +283,50 @@ section{position:relative;}
 #lightbox{
   position:fixed;inset:0;z-index:70;
   background:rgba(0,0,0,.88);
-  display:flex;align-items:center;justify-content:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
   opacity:0;pointer-events:none;transition:opacity .28s ease;
+  touch-action:pinch-zoom;   /* 한 손가락 스와이프는 JS가 처리, 핀치줌은 브라우저가 그대로 처리 */
 }
 #lightbox.show{opacity:1;pointer-events:auto;}
-#lightbox{touch-action:none;}   /* 스와이프 시 뒤 페이지 스크롤 방지 */
-#lightbox img{
-  max-width:94%;max-height:88%;border-radius:14px;
-  transform:scale(.94);transition:transform .28s ease;
+.lb-stage{
+  position:relative;margin:0 auto;
+  width:94vw;max-width:94vw;height:70dvh;max-height:70dvh;  /* 이미지 로드 전 기본값, 로드되면 JS가 실제 비율에 맞게 재조정 */
+  overflow:hidden;
+  transform:scale(.94);transition:transform .28s ease, width .3s ease, height .3s ease;
 }
-#lightbox.show img{transform:scale(1);}
+#lightbox.show .lb-stage{transform:scale(1);}
+.lb-track{
+  display:flex;width:300%;height:100%;
+  transform:translateX(-33.3333%);
+  transition:transform .34s cubic-bezier(.22,.61,.36,1);
+}
+.lb-track.dragging{transition:none;}
+.lb-slide{
+  width:33.3333%;height:100%;flex:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.lb-slide img{
+  width:100%;height:100%;object-fit:contain;border-radius:14px;
+  display:block;
+}
 .lb-close{
   position:absolute;top:calc(16px + env(safe-area-inset-top));right:16px;z-index:2;
   width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
   background:rgba(255,255,255,.2);color:#fff;font-size:18px;
   display:flex;align-items:center;justify-content:center;
 }
+/* 오시는 길 이전/다음 버튼과 동일 규격 (라이트박스 다크 배경용 색상만 조정) */
+.lb-nav{
+  display:flex;gap:14px;flex:none;
+  margin:0 auto calc(14px + env(safe-area-inset-bottom));
+}
+.lb-nav button{
+  width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,.2);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .2s;
+}
+.lb-nav button svg{width:32px;height:32px;fill:currentColor;}
 
 /* ---------- 4. 오시는 길 ---------- */
 #location{background:var(--bg);padding-bottom:80px;}
@@ -326,7 +339,7 @@ section{position:relative;}
 .loc-cards::-webkit-scrollbar{display:none;}
 /* 하이라이트 카드와 동일 규격 */
 .loc-card{
-  flex:0 0 86%;max-width:400px;min-height:440px;
+  flex:0 0 86%;max-width:400px;aspect-ratio:344/486;
   background:var(--gray);border-radius:28px;
   padding:40px 30px;text-align:left;
   scroll-snap-align:center;
@@ -411,10 +424,11 @@ section{position:relative;}
 }
 .loc-nav button{
   width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
-  background:#E8E8ED;color:#333;font-size:19px;font-weight:700;
+  background:#E8E8ED;color:#333;
   display:flex;align-items:center;justify-content:center;
   transition:opacity .2s;
 }
+.loc-nav button svg{width:32px;height:32px;fill:currentColor;}
 .loc-nav button:disabled{opacity:.4;cursor:default;}
 
 /* ---------- 5. 마음 전하실 곳 ---------- */
@@ -575,24 +589,15 @@ section{position:relative;}
       </div>
       <div class="hl-card fade hl-date-card">
         <div>
+          <p class="venue-name" style="margin-bottom:8px">코엑스 아셈볼룸</p>
           <p class="date-big">2026년 10월 25일<br />일요일 오후 12시 30분</p>
           <p class="date-en">Sunday, October 25, 2026<br /> 12:30 PM</p>
         </div>
-        <p class="cal-month" aria-hidden="true">10</p>
-        <table class="mini-cal">
-          <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
-          <tbody>
-            <tr><td></td><td></td><td></td><td></td><td>1</td><td>2</td><td>3</td></tr>
-            <tr><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr>
-            <tr><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td></tr>
-            <tr><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td></tr>
-            <tr><td class="hl"><span>25</span></td><td>26</td><td>27</td><td>28</td><td>29</td><td>30</td><td>31</td></tr>
-          </tbody>
-        </table>
+        <img class="hl-card-img" loading="lazy" decoding="async" src="./images/highlights/card2.jpeg" alt="" />
       </div>
       <div class="hl-card fade hl-venue-card">
         <div>
-          <p class="venue-name" id="hl-venue">강남 그래머시 코엑스 아셈볼룸</p>
+          <p class="venue-name" id="hl-venue">식사 안내</p>
           <p class="venue-addr" id="hl-addr">동시 예식으로 진행되며, 예식 전에는 미리 식사가 제공되지 않습니다.</p>
         </div>
         <img class="hl-card-img" loading="lazy" decoding="async" src="./images/highlights/card3.png" alt="예식장 사진" />
@@ -602,15 +607,17 @@ section{position:relative;}
   </section>
 
   <!-- 3. 갤러리 스토리 5꼭지 -->
-  <!-- 갤러리 1 : 첫 만남 -->
+  <!-- 갤러리 1 : 안전 -->
   <section class="dress">
     <div class="dress-sticky">
       <img loading="lazy" decoding="async" src="./images/gallery/1-main.jpg" alt="갤러리 1" />
       <div class="dress-label dark-label">
-        <p class="num" style="color:var(--primary)">첫 만남</p>
-        <p class="name">조교와 학생으로부터</p>
-        <p class="desc">가나의 졸업프로젝트에 형진이 조교로 처음 만난 두 사람.<br />
-        가나는 형진이 나이가 좀 있는 박사님인 줄 알았다고 한다.</p>
+        <p class="num" style="color:var(--primary)">안전</p>
+        <p class="name">진정한 구호의 손목.</p>
+        <p class="desc">당신에게 도움이 가장 필요한 순간,<br />
+        다른 모든 것이 멀리 떨어져 있더라도 곁에 있도록 설계되었습니다.<br />
+        말할 수 없는 상태가 되었을 때 대신 서명할 사람이<br />
+        이미 정해져 있고, 순위를 다투는 일도 없습니다. 언제나 1순위니까요.</p>
       </div>
     <div class="cards">
         <img loading="lazy" decoding="async" src="./images/gallery/1-sub1.jpg" alt="" />
@@ -626,16 +633,17 @@ section{position:relative;}
     </div>
   </section>
 
-  <!-- 갤러리 2 : 고백다리 -->
+  <!-- 갤러리 2 : 온도 -->
   <section class="dress">
     <div class="dress-sticky">
       <img loading="lazy" decoding="async" src="./images/gallery/2-main.jpeg" alt="갤러리 2" />
       <div class="dress-label dark-label">
-        <p class="num" style="color:var(--secondary)">고백다리</p>
-        <p class="name">평생 내 자기가 되어줄래</p>
-        <p class="desc">23년, 날씨가 점점 따뜻해질 무렵<br />
-        어딘가로 놀러가는 길 인천대교 위에서<br />
-        형진이 차 안에서 꽃을 내밀며</p>
+        <p class="num" style="color:var(--secondary)">온도</p>
+        <p class="name">돌아갈 곳이 생깁니다.</p>
+        <p class="desc">밖에서 어떤 하루를 보냈든, 문을 열면 불이 켜져 있습니다.<br />
+        대단한 일이 기다리는 건 아닙니다. 오늘 뭐 했는지 묻고,<br />
+        별것 아닌 이야기를 하고, 같이 저녁을 먹는 정도죠.<br />
+        그 정도가 매일 반복된다는 게 생각보다 큽니다.</p>
       </div>
       <div class="cards">
         <img loading="lazy" decoding="async" src="./images/gallery/2-sub1.jpg" alt="" />
@@ -647,48 +655,51 @@ section{position:relative;}
         <img loading="lazy" decoding="async" src="./images/gallery/2-sub7.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/2-sub8.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/2-sub9.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/2-sub10.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/2-sub10.jpg" alt="" />
       </div>
     </div>
   </section>
 
-  <!-- 갤러리 3 : 프로포즈 -->
+  <!-- 갤러리 3 : 규모 -->
   <section class="dress">
     <div class="dress-sticky">
       <img loading="lazy" decoding="async" src="./images/gallery/3-main.jpeg" alt="갤러리 3" />
       <div class="dress-label">
-        <p class="num" style="color:var(--third)">프로포즈</p>
-        <p class="name">추리닝 차림으로 받은 청혼</p>
-        <p class="desc">25년 벚꽃 캠핑으로 영월에 갔을 때,<br />
-        형진이 전날부터 세팅한 꽃이 가득한 텐트에서<br />
-        추리닝 차림의 가나와 평생을 약속했다</p>
+        <p class="num" style="color:var(--third)">규모</p>
+        <p class="name">1인 기준이 사라집니다.</p>
+        <p class="desc">혼자였을 때는 신청조차 되지 않던 것들이 있습니다.<br />
+        집도, 노후도 전부 한 사람 몫으로만 계산되었으니까요.<br />
+        달라지는 건 크기가 아니라 시간 단위입니다.<br />
+        30년짜리 계획이 처음으로 현실적인 이야기가 되죠.</p>
       </div>
       <div class="cards">
-        <img loading="lazy" decoding="async" src="./images/gallery/3-sub1.jpeg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/3-sub2.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/3-sub1.jpg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/3-sub2.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/3-sub3.jpeg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/3-sub4.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/3-sub4.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/3-sub5.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/3-sub6.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/3-sub6.jpg" alt="" />
       </div>
     </div>
   </section>
 
-  <!-- 갤러리 4 : 이유 -->
+  <!-- 갤러리 4 : 호흡 -->
   <section class="dress">
     <div class="dress-sticky">
       <img loading="lazy" decoding="async" src="./images/gallery/4-main.jpg" alt="갤러리 4" />
       <div class="dress-label dark-label">
-        <p class="num" style="color:var(--fourth)">이유</p>
-        <p class="name">서로여야만 하는 이유</p>
-        <p class="desc">형진: 예쁘고 귀엽고 똑똑해서<br />
-        가나: 잘생기고 든든하고 다정해서</p>
+        <p class="num" style="color:var(--fourth)">호흡</p>
+        <p class="name">말하지 않아도 알게 되는 것들.</p>
+        <p class="desc">서로 다른 두 사람입니다. 각자의 방식대로 살아왔죠.<br />
+        그런데 오래 곁에 있다 보면 굳이 꺼내지 않은 말까지 전해집니다.<br />
+        물론 전부는 아닙니다. 어떤 것들은 여전히 직접 말해야 하고,<br />
+        아마 앞으로도 그럴 겁니다.</p>
       </div>
     <div class="cards">
         <img loading="lazy" decoding="async" src="./images/gallery/4-sub1.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/4-sub2.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/4-sub2.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/4-sub3.jpeg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/4-sub4.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/4-sub4.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/4-sub5.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/4-sub6.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/4-sub7.jpg" alt="" />
@@ -698,27 +709,27 @@ section{position:relative;}
     </div>
   </section>
 
-  <!-- 갤러리 5 : 마침내 -->
-  <!-- [임의 문구] 내용 확정되면 num/name/desc 교체 -->
+  <!-- 갤러리 5 : 시간 -->
   <section class="dress">
     <div class="dress-sticky">
       <img loading="lazy" decoding="async" src="./images/gallery/5-main.jpeg" alt="갤러리 5" />
       <div class="dress-label dark-label">
-        <p class="num" style="color:var(--fifth)">마침내</p>
-        <p class="name">이제, 부부로</p>
-        <p class="desc">함께 웃고 함께 걸어온 시간들 위에<br />
-        이제는 부부라는 이름을 더합니다.<br />
-        저희 두 사람의 시작을 지켜봐 주세요.</p>
+        <p class="num" style="color:var(--fifth)">시간</p>
+        <p class="name">산 날보다 지금이 더 좋습니다.</p>
+        <p class="desc">대부분은 처음이 가장 좋습니다. 이건 반대이길 바랐습니다.<br />
+        해마다 없던 것이 하나씩 생기고, 그중 몇 가지는<br />
+        두 사람이 직접 만들어 냅니다. 사람 형태로 늘어나기도 하죠.<br />
+        정해진 끝은 없습니다. 2026년 10월 25일, 정식 출시됩니다.</p>
       </div>
       <div class="cards">
         <img loading="lazy" decoding="async" src="./images/gallery/5-sub1.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/5-sub2.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/5-sub3.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/5-sub3.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/5-sub4.jpeg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/5-sub5.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/5-sub5.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/5-sub6.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/5-sub7.jpeg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/5-sub8.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/5-sub7.jpg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/5-sub8.jpg" alt="" />
       </div>
     </div>
   </section>
@@ -788,8 +799,12 @@ section{position:relative;}
       </div>
     </div>
     <div class="loc-nav">
-      <button id="loc-prev" aria-label="이전 카드" disabled>‹</button>
-      <button id="loc-next" aria-label="다음 카드">›</button>
+      <button id="loc-prev" aria-label="이전 카드" disabled>
+        <svg viewBox="0 0 36 36" aria-hidden="true"><path d="m20 25c-.3838 0-.7676-.1465-1.0605-.4395l-5.5-5.5c-.5859-.5854-.5859-1.5356 0-2.1211l5.5-5.5c.5859-.5859 1.5352-.5859 2.1211 0 .5859.5854.5859 1.5356 0 2.1211l-4.4395 4.4395 4.4395 4.4395c.5859.5854.5859 1.5356 0 2.1211-.293.293-.6768.4395-1.0605.4395z"></path></svg>
+      </button>
+      <button id="loc-next" aria-label="다음 카드">
+        <svg viewBox="0 0 36 36" aria-hidden="true"><path d="m22.5597 16.9375-5.5076-5.5c-.5854-.5854-1.5323-.5825-2.1157.0039-.5835.5869-.5815 1.5366.0039 2.1211l4.4438 4.4375-4.4438 4.4375c-.5854.5845-.5874 1.5342-.0039 2.1211.2922.2944.676.4414 1.0598.4414.3818 0 .7637-.1455 1.0559-.4375l5.5076-5.5c.2815-.2812.4403-.6636.4403-1.0625s-.1588-.7812-.4403-1.0625z"></path></svg>
+      </button>
     </div>
   </section>
 
@@ -817,7 +832,7 @@ section{position:relative;}
   <!-- 6. 참석 여부 -->
   <section id="rsvp">
     <div class="section-head fade">
-      <h2>함께해 주세요.</h2>
+      <h2>각자의 취향.</h2>
     </div>
     <!-- 스크롤 시 상단 고정: 사진 + 이름 -->
     <div class="rsvp-head">
@@ -830,28 +845,28 @@ section{position:relative;}
     <!-- 프로필 비교 (아이콘 + 내용) -->
     <div class="profile-grid">
       <div class="prof-row fade">
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/born.png" alt="출생" /><p>94년 12월 26일<br />인천 출생</p></div>
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/born.png" alt="출생" /><p>96년 5월 7일<br />출생</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/born.png" alt="출생" /><p>94년 12월 26일</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/born.png" alt="출생" /><p>96년 5월 7일</p></div>
       </div>
       <div class="prof-row fade">
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/education.png" alt="학력" /><p>13년 붕어고 졸업<br />20년 인하대 졸업<br />22년 인하대학원 졸업</p></div>
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/education.png" alt="학력" /><p>15년 휘봉고 졸업<br />21년 인하대 졸업<br />26년 인하대학원 졸업</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/hobbies.png" alt="취미" /><p>납땜</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/hobbies.png" alt="취미" /><p>뜨개질</p></div>
       </div>
       <div class="prof-row fade">
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/company.png" alt="직장" /><p>현대 모비스<br />재직 중</p></div>
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/company.png" alt="직장" /><p>쉬었음 청년</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/food.png" alt="음식" /><p>삼겹살+김치</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/food.png" alt="음식" /><p>참치비빔밥</p></div>
       </div>
       <div class="prof-row fade">
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/hobbies.png" alt="취미" /><p>취미 입력 예정</p></div>
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/hobbies.png" alt="취미" /><p>취미 입력 예정</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/music.png" alt="음악" /><p>End of the Road<br />- Boyz II Men</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/music.png" alt="음악" /><p>Leave the Door Open<br />- Bruno Mars</p></div>
       </div>
       <div class="prof-row fade">
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/food.png" alt="음식" /><p>좋아하는 음식 입력 예정</p></div>
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/food.png" alt="음식" /><p>좋아하는 음식 입력 예정</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/movie.png" alt="영화" /><p>아메리칸 셰프</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/movie.png" alt="영화" /><p>아이언맨3</p></div>
       </div>
       <div class="prof-row fade">
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/travle.png" alt="장소" /><p>좋아하는 장소 입력 예정</p></div>
-        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/travle.png" alt="장소" /><p>좋아하는 장소 입력 예정</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/travle.png" alt="장소" /><p>서촌</p></div>
+        <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/travle.png" alt="장소" /><p>부암동</p></div>
       </div>
     </div>
 
@@ -895,7 +910,21 @@ section{position:relative;}
 <!-- 카드 확대 보기 -->
 <div id="lightbox" role="dialog" aria-label="사진 크게 보기">
   <button class="lb-close" onclick="closeLightbox()" aria-label="닫기">✕</button>
-  <img id="lightbox-img" src="" alt="" />
+  <div class="lb-stage" id="lb-stage">
+    <div class="lb-track" id="lb-track">
+      <div class="lb-slide"><img data-role="prev" src="" alt="" /></div>
+      <div class="lb-slide"><img data-role="current" src="" alt="" /></div>
+      <div class="lb-slide"><img data-role="next" src="" alt="" /></div>
+    </div>
+  </div>
+  <div class="lb-nav">
+    <button id="lb-prev" aria-label="이전 사진">
+      <svg viewBox="0 0 36 36" aria-hidden="true"><path d="m20 25c-.3838 0-.7676-.1465-1.0605-.4395l-5.5-5.5c-.5859-.5854-.5859-1.5356 0-2.1211l5.5-5.5c.5859-.5859 1.5352-.5859 2.1211 0 .5859.5854.5859 1.5356 0 2.1211l-4.4395 4.4395 4.4395 4.4395c.5859.5854.5859 1.5356 0 2.1211-.293.293-.6768.4395-1.0605.4395z"></path></svg>
+    </button>
+    <button id="lb-next" aria-label="다음 사진">
+      <svg viewBox="0 0 36 36" aria-hidden="true"><path d="m22.5597 16.9375-5.5076-5.5c-.5854-.5854-1.5323-.5825-2.1157.0039-.5835.5869-.5815 1.5366.0039 2.1211l4.4438 4.4375-4.4438 4.4375c-.5854.5845-.5874 1.5342-.0039 2.1211.2922.2944.676.4414 1.0598.4414.3818 0 .7637-.1455 1.0559-.4375l5.5076-5.5c.2815-.2812.4403-.6636.4403-1.0625s-.1588-.7812-.4403-1.0625z"></path></svg>
+    </button>
+  </div>
 </div>
 
 <script>
@@ -903,14 +932,13 @@ section{position:relative;}
    설정 — 이 블록만 수정하면 됨
    ========================================================== */
 const CONFIG = {
-  // [교체 예정] RSVP 백엔드 → 구글폼으로 전환 확정.
-  // 구글폼 만들고 formResponse URL + entry.숫자 ID 3개 확보하면
-  // 이 API_URL과 아래 submitRSVP() 함수를 수정할 것.
-  API_URL: 'https://sujihome.ddns.net:49200/api/rsvp',
+  // RSVP 백엔드 → 구글 스프레드시트(Apps Script 웹앱)로 연결.
+  // server/rsvp-apps-script.gs 를 스프레드시트에 배포하고 나온 웹 앱 URL(…/exec)을 아래에 붙여넣을 것.
+  API_URL: 'https://script.google.com/macros/s/AKfycbwIPasZAYT39n84NBOF43dSRs6rThM4AO5kbXJ6NOMeB75-x3N9oCjz72arYONQdI_y/exec',
 
   WEDDING_DATE: '2026-10-25T12:30:00+09:00',
 
-  VENUE_NAME: '그래머시 코엑스 아셈볼룸',
+  VENUE_NAME: '코엑스 아셈볼룸',
   VENUE_ADDR: '강남구 영동대로 517 코엑스 컨벤션센터 2층',
   NAVER_MAP_URL: 'https://naver.me/FMcvEUZS',
   KAKAO_MAP_URL: 'https://place.map.kakao.com/1151703248',
@@ -1141,40 +1169,95 @@ function closeLightbox() {
 }
 (function () {
   const lb = document.getElementById('lightbox');
-  const lbImg = document.getElementById('lightbox-img');
-  let list = [], idx = 0;
+  const stage = document.getElementById('lb-stage');
+  const track = document.getElementById('lb-track');
+  const prevBtn = document.getElementById('lb-prev');
+  const nextBtn = document.getElementById('lb-next');
+  const slideImgs = {
+    prev: track.querySelector('img[data-role="prev"]'),
+    current: track.querySelector('img[data-role="current"]'),
+    next: track.querySelector('img[data-role="next"]'),
+  };
+  let list = [], idx = 0, animating = false;
 
-  function show(i) {
-    idx = (i + list.length) % list.length;   // 루프
-    lbImg.src = list[idx];
+  function loopIndex(i) {
+    return ((i % list.length) + list.length) % list.length;
+  }
+  // 현재 사진의 실제 가로세로 비율에 맞춰 스테이지 박스 크기를 재조정 (버튼이 사진 바로 아래에 붙도록)
+  function fitStage() {
+    const im = slideImgs.current;
+    const apply = () => {
+      if (!im.naturalWidth || !im.naturalHeight) return;
+      const maxW = window.innerWidth * 0.94;
+      const maxH = window.innerHeight * 0.7;
+      const ratio = im.naturalWidth / im.naturalHeight;
+      let w = maxW, h = w / ratio;
+      if (h > maxH) { h = maxH; w = h * ratio; }
+      stage.style.width = w + 'px';
+      stage.style.height = h + 'px';
+    };
+    if (im.complete) apply();
+    else im.addEventListener('load', apply, { once: true });
+  }
+  function setSlides() {
+    slideImgs.prev.src = list[loopIndex(idx - 1)];
+    slideImgs.current.src = list[idx];
+    slideImgs.next.src = list[loopIndex(idx + 1)];
+    fitStage();
+  }
+  function open(startIdx) {
+    idx = loopIndex(startIdx);
+    setSlides();
+    lb.classList.add('show');
   }
 
   // 카드 탭 → 해당 섹션 사진 목록으로 열기
-  document.querySelectorAll('.cards').forEach(track => {
-    track.addEventListener('click', e => {
+  document.querySelectorAll('.cards').forEach(cardTrack => {
+    cardTrack.addEventListener('click', e => {
       if (e.target.tagName !== 'IMG') return;
       e.stopPropagation();
-      const imgs = Array.from(track.querySelectorAll('img'));
-      list = imgs.map(im => im.src);
-      show(imgs.indexOf(e.target));
-      lb.classList.add('show');
+      const cardImgs = Array.from(cardTrack.querySelectorAll('img'));
+      list = cardImgs.map(im => im.src);
+      open(cardImgs.indexOf(e.target));
     });
   });
 
-  // 확대 상태에서 좌우 스와이프로 이전/다음 (루프), 짧은 탭은 닫기
+  // 옆 칸으로 트랙을 슬라이드시킨 뒤, 이미지만 갱신하고 순간적으로 가운데로 복귀 (무한 루프처럼 보이게)
+  function slideTo(dir) {
+    if (animating || list.length < 2) return;
+    animating = true;
+    track.style.transform = 'translateX(' + (dir === 1 ? '-66.6667%' : '0%') + ')';
+    track.addEventListener('transitionend', function onEnd() {
+      track.removeEventListener('transitionend', onEnd);
+      idx = loopIndex(idx + dir);
+      track.classList.add('dragging');   // 트랜지션 잠깐 끄고 순간 이동
+      setSlides();
+      track.style.transform = 'translateX(-33.3333%)';
+      track.offsetHeight;                // 강제 리플로우
+      track.classList.remove('dragging');
+      animating = false;
+    }, { once: true });
+  }
+
+  prevBtn.addEventListener('click', e => { e.stopPropagation(); slideTo(-1); });
+  nextBtn.addEventListener('click', e => { e.stopPropagation(); slideTo(1); });
+
+  // 좌우 스와이프로 이전/다음 (자연스러운 슬라이드 애니메이션), 짧은 탭은 닫기
   let sx = 0, swiped = false;
   lb.addEventListener('pointerdown', e => { sx = e.clientX; swiped = false; });
   lb.addEventListener('pointerup', e => {
     const dx = e.clientX - sx;
     if (Math.abs(dx) > 40 && list.length > 1) {
       swiped = true;
-      show(idx + (dx < 0 ? 1 : -1));
+      slideTo(dx < 0 ? 1 : -1);
     }
   });
   lb.addEventListener('click', e => {
-    if (swiped) { swiped = false; return; }  // 스와이프 직후의 클릭은 무시
+    if (swiped) { swiped = false; return; }     // 스와이프 직후의 클릭은 무시
+    if (e.target.closest('.lb-nav')) return;     // 이전/다음 버튼 조작은 닫기 방지
     closeLightbox();
   });
+  window.addEventListener('resize', () => { if (lb.classList.contains('show')) fitStage(); });
 })();
 
 /* ---------- 계좌 아코디언 ---------- */
@@ -1234,8 +1317,9 @@ function closeSheet() {
   document.getElementById('sheet').classList.remove('show');
 }
 
-/* [교체 예정] 구글폼 전환 시 이 함수의 fetch 부분을
-   구글폼 formResponse URL + entry ID(FormData, mode:'no-cors')로 변경 */
+/* 구글 스프레드시트(Apps Script 웹앱)로 전송.
+   웹앱은 크로스오리진 응답에 CORS 헤더를 안 붙여주므로 mode:'no-cors'로 보내고,
+   응답 내용을 읽을 수 없는 대신 요청이 던져지면 성공으로 간주(낙관적 처리)한다. */
 async function submitRSVP() {
   const name = document.getElementById('rsvp-name').value.trim();
   const phone = document.getElementById('rsvp-phone').value.trim();
@@ -1251,15 +1335,13 @@ async function submitRSVP() {
   const btn = document.getElementById('rsvp-submit');
   btn.disabled = true; msg.textContent = '전달 중…';
   try {
-    const res = await fetch(CONFIG.API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        side: sideEl.value, attend: attendEl.value, name, phone,
-        count: document.getElementById('rsvp-count').value || '1',
-      }),
-    });
-    if (!res.ok) throw new Error(res.status);
+    const body = new FormData();
+    body.append('side', sideEl.value);
+    body.append('name', name);
+    body.append('phone', phone);
+    body.append('attend', attendEl.value);
+    body.append('count', document.getElementById('rsvp-count').value || '1');
+    await fetch(CONFIG.API_URL, { method: 'POST', mode: 'no-cors', body });
     msg.textContent = '소중한 의사가 전달되었습니다. 감사합니다!';
     setTimeout(closeSheet, 1500);
   } catch (e) {
