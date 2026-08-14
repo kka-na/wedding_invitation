@@ -314,6 +314,7 @@ section{position:relative;}
 .lb-slide img{
   width:100%;height:100%;object-fit:contain;
   display:block;
+  transform-origin:center center;   /* 핀치줌이 항상 정확히 중앙 기준으로 확대/축소되도록 명시 */
 }
 .lb-close{
   position:absolute;top:calc(16px + env(safe-area-inset-top));right:16px;z-index:2;
@@ -1348,7 +1349,8 @@ function closeLightbox() {
     const [a, b] = [...pointers.values()];
     pinchStartDist = dist(a, b) || 1;
     pinchStartScale = scale;
-    // 위치(panX/panY)는 건드리지 않음 — 핀치 중엔 확대/축소만, 이미지가 밀리지 않게 고정
+    panX = 0; panY = 0;   // 이전에 한 손가락으로 이동시켰던 값이 남아있으면 중심이 어긋나 보이므로 초기화
+    applyImgTransform();
   }
   function beginPan(pointerId, x, y) {
     panning = true;
