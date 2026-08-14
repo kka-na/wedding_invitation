@@ -1107,6 +1107,21 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   // 5개 섹션의 고정(pin) 구간을 전부 만든 뒤에 다시 계산해야, 앞 섹션이 만든 여백이
   // 뒤 섹션의 시작/끝 위치 계산에 반영된다 (안 하면 카드가 갑자기 사라졌다 나타남)
   ScrollTrigger.refresh();
+
+  // 모바일 브라우저는 스크롤 중 주소창이 접히면서 실제 화면이 커지는데, 페이지
+  // 로드 시점(주소창이 펼쳐진 더 작은 화면)에 계산해 둔 고정 구간 위치가 그대로
+  // 남아있으면 처음 만나는 섹션(막 고정이 걸리는 순간)과 나중에 다시 보는 섹션이
+  // 다르게 보인다 (위로 착 붙으면서 아래 여백이 남는 원인). 주소창 접힘/펼침은
+  // 일반 window resize로 안 잡히는 경우가 있어 visualViewport로 감지.
+  let resizeTimer;
+  const onViewportChange = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 150);
+  };
+  window.addEventListener('resize', onViewportChange);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onViewportChange);
+  }
 })();
 
 /* ---------- 하이라이트 카드 인디케이터 ---------- */
