@@ -267,7 +267,7 @@ section{position:relative;}
 .dark-label .desc{color:var(--ink2) !important;}
 /* 서브 이미지 카드 — 블러된 메인 사진 위로 플로팅 */
 .cards{
-  position:absolute;left:0;right:0;bottom:6svh;z-index:3;  /* 아래에서 띄우는 정도 */
+  position:absolute;left:0;right:0;bottom:9svh;z-index:3;  /* 아래에서 띄우는 정도 (플로팅 바로가기 버튼과 안 겹치게) */
   display:flex;gap:14px;
   overflow-x:auto;scroll-snap-type:x mandatory;
   padding:20px max(24px, calc((100vw - 980px)/2 + 24px)) calc(28px + env(safe-area-inset-bottom));
@@ -1341,17 +1341,14 @@ function closeLightbox() {
   let sx = 0, swiped = false, primaryPointerId = null, pinched = false;
   let dragging = false, dragDx = 0;
   let panning = false, panPointerId = null, panStartClientX = 0, panStartClientY = 0, panStartX0 = 0, panStartY0 = 0;
-  let pinchStartDist = 1, pinchStartScale = 1, pinchStartMidX = 0, pinchStartMidY = 0, pinchStartPanX = 0, pinchStartPanY = 0;
+  let pinchStartDist = 1, pinchStartScale = 1;
 
   function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-  function mid(a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
   function beginPinch() {
     const [a, b] = [...pointers.values()];
     pinchStartDist = dist(a, b) || 1;
     pinchStartScale = scale;
-    const m = mid(a, b);
-    pinchStartMidX = m.x; pinchStartMidY = m.y;
-    pinchStartPanX = panX; pinchStartPanY = panY;
+    // 위치(panX/panY)는 건드리지 않음 — 핀치 중엔 확대/축소만, 이미지가 밀리지 않게 고정
   }
   function beginPan(pointerId, x, y) {
     panning = true;
@@ -1388,10 +1385,7 @@ function closeLightbox() {
     if (pointers.size >= 2) {
       const [a, b] = [...pointers.values()];
       scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, pinchStartScale * (dist(a, b) / pinchStartDist)));
-      const m = mid(a, b);
-      panX = pinchStartPanX + (m.x - pinchStartMidX);
-      panY = pinchStartPanY + (m.y - pinchStartMidY);
-      applyImgTransform();
+      applyImgTransform();   // 위치는 그대로 두고 확대/축소만 반영
       return;
     }
     if (panning && e.pointerId === panPointerId) {
