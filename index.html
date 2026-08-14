@@ -192,6 +192,7 @@ section{position:relative;}
   padding:40px 30px;
   scroll-snap-align:center;
   display:flex;flex-direction:column;text-align:left;
+  overflow:hidden;  /* 좁은 화면에서 콘텐츠가 넘쳐도 카드 밖으로 삐져나오지 않도록 안전장치 */
 }
 .hl-card:nth-child(odd){justify-content:flex-start;}  /* 홀수 카드: 위쪽 정렬 */
 .hl-card:nth-child(even){justify-content:flex-end;}   /* 짝수 카드: 아래쪽 정렬 */
@@ -344,6 +345,7 @@ section{position:relative;}
   padding:40px 30px;text-align:left;
   scroll-snap-align:center;
   display:flex;flex-direction:column;justify-content:flex-start;
+  overflow:hidden;  /* 좁은 화면에서 콘텐츠가 넘쳐도 카드 밖으로 삐져나오지 않도록 안전장치 */
 }
 .loc-card h4{font-size:15px;font-weight:500;color:var(--ink2);margin-bottom:14px;}
 .loc-card p{font-size:17px;font-weight:700;color:var(--ink);line-height:1.65;letter-spacing:-.01em;}
@@ -1178,7 +1180,7 @@ function closeLightbox() {
     current: track.querySelector('img[data-role="current"]'),
     next: track.querySelector('img[data-role="next"]'),
   };
-  let list = [], idx = 0, animating = false;
+  let list = [], idx = 0, animating = false, gen = 0;
 
   function loopIndex(i) {
     return ((i % list.length) + list.length) % list.length;
@@ -1206,7 +1208,13 @@ function closeLightbox() {
     fitStage();
   }
   function open(startIdx) {
+    gen++;              // 새 세션 시작 → 이전에 진행 중이던 슬라이드 애니메이션 콜백을 무효화
+    animating = false;
     idx = loopIndex(startIdx);
+    track.classList.add('dragging');
+    track.style.transform = 'translateX(-33.3333%)';
+    track.offsetHeight;
+    track.classList.remove('dragging');
     setSlides();
     lb.classList.add('show');
   }
@@ -1226,9 +1234,11 @@ function closeLightbox() {
   function slideTo(dir) {
     if (animating || list.length < 2) return;
     animating = true;
+    const myGen = gen;
     track.style.transform = 'translateX(' + (dir === 1 ? '-66.6667%' : '0%') + ')';
     track.addEventListener('transitionend', function onEnd() {
       track.removeEventListener('transitionend', onEnd);
+      if (myGen !== gen) return;   // 그 사이 라이트박스가 닫혔다 다른 사진으로 다시 열렸으면 무시
       idx = loopIndex(idx + dir);
       track.classList.add('dragging');   // 트랜지션 잠깐 끄고 순간 이동
       setSlides();
@@ -1243,18 +1253,37 @@ function closeLightbox() {
   nextBtn.addEventListener('click', e => { e.stopPropagation(); slideTo(1); });
 
   // 좌우 스와이프로 이전/다음 (자연스러운 슬라이드 애니메이션), 짧은 탭은 닫기
-  let sx = 0, swiped = false;
-  lb.addEventListener('pointerdown', e => { sx = e.clientX; swiped = false; });
-  lb.addEventListener('pointerup', e => {
+  // 손가락 2개 이상(핀치줌) 상태에서는 스와이프·탭-닫기 판정을 무시해야
+  // 핀치줌 후 손을 뗄 때 실수로 라이트박스가 닫히지 않는다.
+  const activePointers = new Set();
+  let sx = 0, swiped = false, primaryPointerId = null, pinched = false;
+  lb.addEventListener('pointerdown', e => {
+    activePointers.add(e.pointerId);
+    if (activePointers.size === 1) {
+      primaryPointerId = e.pointerId;
+      sx = e.clientX;
+      swiped = false;
+      pinched = false;
+    } else {
+      pinched = true;            // 두 번째 손가락 등장 → 핀치줌으로 간주
+      primaryPointerId = null;
+    }
+  });
+  function endPointer(e) {
+    activePointers.delete(e.pointerId);
+    if (pinched || e.pointerId !== primaryPointerId) return;
     const dx = e.clientX - sx;
     if (Math.abs(dx) > 40 && list.length > 1) {
       swiped = true;
       slideTo(dx < 0 ? 1 : -1);
     }
-  });
+  }
+  lb.addEventListener('pointerup', endPointer);
+  lb.addEventListener('pointercancel', e => activePointers.delete(e.pointerId));
   lb.addEventListener('click', e => {
-    if (swiped) { swiped = false; return; }     // 스와이프 직후의 클릭은 무시
-    if (e.target.closest('.lb-nav')) return;     // 이전/다음 버튼 조작은 닫기 방지
+    if (pinched) { pinched = false; return; }    // 핀치줌 직후 발생하는 클릭은 무시
+    if (swiped) { swiped = false; return; }       // 스와이프 직후의 클릭은 무시
+    if (e.target.closest('.lb-nav')) return;      // 이전/다음 버튼 조작은 닫기 방지
     closeLightbox();
   });
   window.addEventListener('resize', () => { if (lb.classList.contains('show')) fitStage(); });
