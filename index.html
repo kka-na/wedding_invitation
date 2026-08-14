@@ -291,7 +291,7 @@ section{position:relative;}
   background:rgba(0,0,0,.88);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
   opacity:0;pointer-events:none;transition:opacity .28s ease;
-  touch-action:pinch-zoom;   /* 한 손가락 스와이프는 JS가 처리, 핀치줌은 브라우저가 그대로 처리 */
+  touch-action:none;   /* 스와이프·핀치줌 전부 JS가 직접 처리 (브라우저 자체 페이지 확대는 고정 오버레이와 충돌해서 씀 안 함) */
 }
 #lightbox.show{opacity:1;pointer-events:auto;}
 .lb-stage{
@@ -1273,7 +1273,22 @@ function closeLightbox() {
     if (im.complete) apply();
     else im.addEventListener('load', apply, { once: true });
   }
+  // 사진 확대(핀치줌) 상태 — 브라우저 자체 페이지 확대 대신, 현재 사진에만
+  // transform으로 확대/이동을 적용 (고정 오버레이가 브라우저 뷰포트 확대와
+  // 충돌해 화면 밖으로 밀려나는 문제를 피하기 위함)
+  const MIN_SCALE = 1, MAX_SCALE = 4;
+  let scale = 1, panX = 0, panY = 0;
+  function applyImgTransform() {
+    slideImgs.current.style.transform = scale === 1 && panX === 0 && panY === 0
+      ? '' : 'translate(' + panX + 'px,' + panY + 'px) scale(' + scale + ')';
+  }
+  function resetZoom() {
+    scale = 1; panX = 0; panY = 0;
+    slideImgs.current.style.transform = '';
+  }
+
   function setSlides() {
+    resetZoom();   // 다른 사진으로 넘어가면 확대 상태 초기화
     slideImgs.prev.src = list[loopIndex(idx - 1)];
     slideImgs.current.src = list[idx];
     slideImgs.next.src = list[loopIndex(idx + 1)];
@@ -1319,35 +1334,72 @@ function closeLightbox() {
   prevBtn.addEventListener('click', e => { e.stopPropagation(); slideTo(-1); });
   nextBtn.addEventListener('click', e => { e.stopPropagation(); slideTo(1); });
 
-  // 좌우 스와이프로 이전/다음 — 손가락을 따라 트랙이 실시간으로 같이 움직이다가,
-  // 손을 떼면 많이 움직인 쪽으로 이어서 슬라이드되거나 원위치로 스냅백.
-  // 손가락 2개 이상(핀치줌) 상태에서는 스와이프·탭-닫기 판정을 무시해야
-  // 핀치줌 후 손을 뗄 때 실수로 라이트박스가 닫히지 않는다.
-  const activePointers = new Set();
+  // 제스처 처리: 손가락 1개면 (확대 안 된 상태) 좌우 스와이프로 이전/다음,
+  // (확대된 상태) 사진 이동. 손가락 2개면 핀치줌 — 사진에만 확대를 적용하고
+  // 브라우저 자체 페이지 확대는 쓰지 않는다 (touch-action:none, 아래 CSS 참고).
+  const pointers = new Map();   // pointerId → 현재 좌표
   let sx = 0, swiped = false, primaryPointerId = null, pinched = false;
   let dragging = false, dragDx = 0;
+  let panning = false, panPointerId = null, panStartClientX = 0, panStartClientY = 0, panStartX0 = 0, panStartY0 = 0;
+  let pinchStartDist = 1, pinchStartScale = 1, pinchStartMidX = 0, pinchStartMidY = 0, pinchStartPanX = 0, pinchStartPanY = 0;
+
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  function mid(a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
+  function beginPinch() {
+    const [a, b] = [...pointers.values()];
+    pinchStartDist = dist(a, b) || 1;
+    pinchStartScale = scale;
+    const m = mid(a, b);
+    pinchStartMidX = m.x; pinchStartMidY = m.y;
+    pinchStartPanX = panX; pinchStartPanY = panY;
+  }
+  function beginPan(pointerId, x, y) {
+    panning = true;
+    panPointerId = pointerId;
+    panStartClientX = x; panStartClientY = y;
+    panStartX0 = panX; panStartY0 = panY;
+  }
+
   lb.addEventListener('pointerdown', e => {
-    activePointers.add(e.pointerId);
-    if (activePointers.size === 1) {
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size >= 2) {
+      pinched = true;
+      if (dragging) { dragging = false; snapTrackTo(REST_X); }
+      panning = false;
+      beginPinch();
+    } else {
       primaryPointerId = e.pointerId;
       sx = e.clientX;
       swiped = false;
       pinched = false;
-      if (!animating && list.length > 1) {
+      if (scale > 1.01) {
+        beginPan(e.pointerId, e.clientX, e.clientY);
+      } else if (!animating && list.length > 1) {
         dragging = true;
         dragDx = 0;
         track.classList.add('dragging');   // 드래그 중엔 트랜지션 끄고 손가락에 즉시 반응
       }
-    } else {
-      pinched = true;            // 두 번째 손가락 등장 → 핀치줌으로 간주
-      primaryPointerId = null;
-      if (dragging) {
-        dragging = false;
-        snapTrackTo(REST_X);
-      }
     }
   });
   lb.addEventListener('pointermove', e => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size >= 2) {
+      const [a, b] = [...pointers.values()];
+      scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, pinchStartScale * (dist(a, b) / pinchStartDist)));
+      const m = mid(a, b);
+      panX = pinchStartPanX + (m.x - pinchStartMidX);
+      panY = pinchStartPanY + (m.y - pinchStartMidY);
+      applyImgTransform();
+      return;
+    }
+    if (panning && e.pointerId === panPointerId) {
+      panX = panStartX0 + (e.clientX - panStartClientX);
+      panY = panStartY0 + (e.clientY - panStartClientY);
+      applyImgTransform();
+      return;
+    }
     if (!dragging || e.pointerId !== primaryPointerId) return;
     dragDx = e.clientX - sx;
     const stageW = stage.getBoundingClientRect().width || window.innerWidth;
@@ -1355,9 +1407,23 @@ function closeLightbox() {
     setTrackX(Math.max(NEXT_X, Math.min(PREV_X, raw)));   // 옆 칸을 넘어서까지 끌리지 않게 제한
   });
   function endPointer(e) {
-    activePointers.delete(e.pointerId);
-    if (pinched || e.pointerId !== primaryPointerId) return;
+    pointers.delete(e.pointerId);
+
+    if (panning && e.pointerId === panPointerId) { panning = false; panPointerId = null; }
+
+    if (pointers.size === 1) {
+      // 핀치 도중 손가락 하나를 뗌 → 남은 손가락으로 이동(pan) 이어가기
+      const [[pid, pos]] = pointers.entries();
+      primaryPointerId = pid;
+      if (scale > 1.01) beginPan(pid, pos.x, pos.y);
+      return;
+    }
+    if (pointers.size > 1) return;   // 세 손가락 이상이었다가 하나만 뗀 경우 등은 무시
+
+    // 손가락이 전부 떨어짐
     primaryPointerId = null;
+    if (scale <= 1.01) resetZoom();   // 원래 크기 근처면 완전히 초기화
+    if (pinched) return;              // 핀치가 있었던 제스처의 탭/클릭은 무시 (스와이프 판정 안 함)
     if (!dragging) return;
     dragging = false;
     track.classList.remove('dragging');   // 트랜지션 다시 켬 → 이어서 부드럽게 완료/복귀
@@ -1372,7 +1438,8 @@ function closeLightbox() {
   }
   lb.addEventListener('pointerup', endPointer);
   lb.addEventListener('pointercancel', e => {
-    activePointers.delete(e.pointerId);
+    pointers.delete(e.pointerId);
+    if (panning && e.pointerId === panPointerId) { panning = false; panPointerId = null; }
     if (dragging && e.pointerId === primaryPointerId) {
       dragging = false;
       snapTrackTo(REST_X);
@@ -1382,6 +1449,7 @@ function closeLightbox() {
     if (pinched) { pinched = false; return; }    // 핀치줌 직후 발생하는 클릭은 무시
     if (swiped) { swiped = false; return; }       // 스와이프 직후의 클릭은 무시
     if (e.target.closest('.lb-nav')) return;      // 이전/다음 버튼 조작은 닫기 방지
+    if (scale > 1.01) { resetZoom(); return; }    // 확대된 상태에서 탭하면 닫지 않고 원래 크기로
     closeLightbox();
   });
   window.addEventListener('resize', () => { if (lb.classList.contains('show')) fitStage(); });
