@@ -1031,30 +1031,34 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
     document.getElementById('hero').classList.add('photo');
     return;
   }
-  const sections = document.querySelectorAll('.dress');
+  // 매 스크롤 프레임마다 querySelector를 다시 타지 않도록 요소 참조를 한 번만 캐싱
+  // (반복 DOM 탐색이 프레임을 갉아먹으면 스크롤이 튕기는/끊기는 느낌으로 느껴짐)
+  const sections = Array.from(document.querySelectorAll('.dress')).map(sec => ({
+    sec,
+    img: sec.querySelector('.dress-sticky > img'),
+    cards: sec.querySelector('.cards'),
+  }));
   const heroMedia = document.querySelectorAll('#hero > video, #hero > img');
-  let ticking = false;
+  const MAX_BLUR = 10;   // 필터 블러 강도 (px) — 16→10으로 낮춰 GPU 부담 완화
+  let ticking = false, skipFrame = false;
   function update() {
-    ticking = false;
     const vh = window.innerHeight;
     // 히어로: 스크롤 내릴수록 살짝 확대 + 블러
     const hp = Math.min(1, Math.max(0, window.scrollY / vh));
     heroMedia.forEach(el => {
-      el.style.filter = 'blur(' + (hp * 16).toFixed(1) + 'px)';
+      el.style.filter = 'blur(' + (hp * MAX_BLUR).toFixed(1) + 'px)';
       el.style.transform = 'scale(' + (1 + hp * 0.06).toFixed(3) + ')';
     });
-    sections.forEach(sec => {
+    sections.forEach(({ sec, img, cards }) => {
       const rect = sec.getBoundingClientRect();
       // 섹션이 화면을 지나는 동안 0→1 (아래로 내릴수록 블러)
       const p = Math.min(1, Math.max(0, -rect.top / (rect.height - vh)));
       // 사진은 전체 화면 고정, 확대 + 블러만
-      const img = sec.querySelector('.dress-sticky > img');
       if (img) {
-        img.style.filter = 'blur(' + (p * 16).toFixed(1) + 'px)';
+        img.style.filter = 'blur(' + (p * MAX_BLUR).toFixed(1) + 'px)';
         img.style.transform = 'scale(' + (1 + p * 0.06).toFixed(3) + ')';
       }
       // 서브 카드: 블러가 진행되면 아래에서 떠오름 (p 0.25→0.85 구간)
-      const cards = sec.querySelector('.cards');
       if (cards) {
         const q = Math.min(1, Math.max(0, (p - 0.25) / 0.6));
         cards.style.opacity = q;
@@ -1063,7 +1067,14 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
     });
   }
   window.addEventListener('scroll', () => {
-    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      skipFrame = !skipFrame;
+      if (skipFrame) return;   // 프레임을 한 번씩 걸러 블러 재계산 빈도를 절반으로 줄임
+      update();
+    });
   }, { passive: true });
   update();
 })();
@@ -1143,7 +1154,10 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
     const beforeLoc = loc.getBoundingClientRect().top > vh * 0.6; // 아직 오시는 길 전
     cta.classList.toggle('show', passedHl && beforeLoc);
   }
-  window.addEventListener('scroll', check, { passive: true });
+  let ctaTicking = false;
+  window.addEventListener('scroll', () => {
+    if (!ctaTicking) { ctaTicking = true; requestAnimationFrame(() => { ctaTicking = false; check(); }); }
+  }, { passive: true });
   check();
 })();
 
