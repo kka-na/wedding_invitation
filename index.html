@@ -255,9 +255,9 @@ section{position:relative;}
   color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.35);
 }
 .dress-label{right:28px;}                     /* 본문 줄바꿈 폭 확보 */
-.dress-label .num{font-size:15px;font-weight:800;opacity:.9;}
+.dress-label .num{font-size:15px;font-weight:800;opacity:.9;margin-left:2px;letter-spacing:.02em;}
 .dress-label .name{font-size:30px;font-weight:800;letter-spacing:-.01em;margin-top:4px;line-height:1.3;}
-.dress-label .desc{margin-top:10px;font-size:14px;font-weight:500;line-height:1.75;color:rgba(255,255,255,.82);}
+.dress-label .desc{margin-top:10px;margin-left:2px;font-size:14px;font-weight:500;line-height:1.75;color:rgba(255,255,255,.82);}
 /* 밝은 사진 위 텍스트는 어두운 색 (dark-label) */
 .dark-label{color:var(--ink);text-shadow:none;}
 .dark-label .desc{color:var(--ink2) !important;}
@@ -591,11 +591,11 @@ section{position:relative;}
       </div>
       <div class="hl-card fade hl-date-card">
         <div>
-          <p class="venue-name" style="margin-bottom:8px">코엑스 아셈볼룸</p>
+          <p class="venue-name" style="margin-bottom:8px">코엑스 2층 아셈볼룸</p>
           <p class="date-big">2026년 10월 25일<br />일요일 오후 12시 30분</p>
           <p class="date-en">Sunday, October 25, 2026<br /> 12:30 PM</p>
         </div>
-        <img class="hl-card-img" loading="lazy" decoding="async" src="./images/highlights/card2.jpeg" alt="" />
+        <img class="hl-card-img" loading="lazy" decoding="async" src="./images/highlights/card2.png" alt="" />
       </div>
       <div class="hl-card fade hl-venue-card">
         <div>
@@ -615,10 +615,10 @@ section{position:relative;}
       <img loading="lazy" decoding="async" src="./images/gallery/1-main.jpg" alt="갤러리 1" />
       <div class="dress-label dark-label">
         <p class="num" style="color:var(--primary)">돌아갈 곳</p>
-        <p class="name">기다리는 사람이 생겼습니다.</p>
-        <p class="desc">밖에서 어떤 하루를 보냈든, 문을 열면 불이 켜져 있습니다.<br />
-        오늘 뭐 했는지 묻고 같이 저녁을 먹는 정도죠.<br />
-        그게 매일이라는 게 생각보다 큽니다.</p>
+        <p class="name">불이 켜져 있습니다.</p>
+        <p class="desc">퇴근하고 집에 오면 누가 있습니다.<br />
+        오늘 어땠는지 묻고, 같이 저녁을 먹죠.<br />
+        별거 아닌 것 같지만 그게 매일이라는 게 큽니다.</p>
       </div>
     <div class="cards">
         <img loading="lazy" decoding="async" src="./images/gallery/1-sub1.jpg" alt="" />
@@ -714,7 +714,7 @@ section{position:relative;}
       <div class="dress-label dark-label">
         <p class="num" style="color:var(--fifth)">시간</p>
         <p class="name">오래 쓸수록 좋아집니다.</p>
-        <p class="desc">지금도 충분하지만, 10년 뒤가 더 좋을 거라고 생각합니다.<br />
+        <p class="desc">지금도 충분하지만, 10년 뒤가 더 좋을 겁니다.<br />
         함께 보낸 시간만큼 쌓이는 것들은<br />새것으로 바꿀 수 없으니까요.<br />
         2026년 10월 25일, 정식 출발합니다.</p>
       </div>
@@ -760,9 +760,8 @@ section{position:relative;}
         <h4>승용차</h4>
         <p class="stop">코엑스 북문 주차장 <span class="gate">GATE 4</span></p>
         <p class="info">내비게이션에 <b>'코엑스 북문 주차장'</b> 검색</p>
-        <p class="info">지하 2·3·4층 <b>블루구역</b>이 가장 가깝습니다.<br />
-        지하 2층 <b>입구 8</b> · 지하 3층 <b>입구 11</b> <br /> 지하 4층 <b>입구 16, 17</b>을 통해
-        <br /><br />1층에 올라와,북문 바로 앞 에스컬레이터를 타고 <br />2층 아셈볼룸으로 오시면 됩니다.</p>
+        <p class="info">지하 2·3·4층 <b>블루구역</b>이 가깝습니다.<br />
+        주차 후, <b>P7</b> 출입구로 <b>1층</b>으로 이동, <br />북문 바로 앞 에스컬레이터를 타고 <br />2층 아셈 볼룸으로 오시면 됩니다.</p>
         <p class="note">주차는 3시간 지원 됩니다.</p>
         <p class="note">주차가 혼잡할 수 있습니다.</p>
       </div>
@@ -770,10 +769,10 @@ section{position:relative;}
         <h4>지하철</h4>
         <div class="stop-rec">
           <p class="stop"><span class="line l9">9</span>봉은사역 7번 출구 <span class="rec-badge">추천</span></p>
-          <p class="info">7번 출구로 나오셔서 오른쪽으로 보이는 <br />큰 계단을 이용하여 1층으로 올라 오신 후, <br />큰 도로를 따라 직진, 140m가량 이동하여 <br />북문 입구로 들어 오시면 됩니다.</p>
+          <p class="info">7번 출구로 나와 <br />우측 큰 계단으로 올라 오신 후, <br />큰 도로를 따라 3분가량 직진하여<br />북문 입구로 들어 오시면 됩니다.</p>
         </div>
-        <p class="stop" style="margin-top:18px;"><span class="line l2">2</span>삼성역 5 · 6번 출구</p>
-        <p class="info">출구와 직접 연결된 통로로 진입,<br />밀레니엄 광장을 지나 코엑스몰로 들어오시어 <br />컨벤션센터 이정표를 따라 오시면됩니다.</p>
+        <p class="stop" style="margin-top:18px;"><span class="line l2">2</span>삼성역 임시 5번 출구</p>
+        <p class="info">출구로 나와 G20 광장 지나,<br />지하 계단을 내려와 코엑스몰로 들어와, <br />컨벤션센터 이정표를 따라 오시면됩니다.</p>
       </div>
       <div class="loc-card fade">
         <h4>버스</h4>
@@ -787,7 +786,7 @@ section{position:relative;}
           <p class="stop">무역센터<span class="stop-no">23198</span></p>
           <p class="bus-lines"><span class="bt trunk">간선</span>146 · 301 · 342 · 345 · 401</p>
           <p class="bus-lines"><span class="bt branch">지선</span>2415 · 3217 · 3411 · 3412 · 3414 · 4318</p>
-          <p class="bus-lines"><span class="bt express">직행</span>500-2 · 9407 · 9507 · 9607 · G3202</p>
+          <p class="bus-lines"><span class="bt express">직행</span>500-2 · 9407 · 9507 · 9607</p>
         </div>
       </div>
     </div>
@@ -932,7 +931,7 @@ const CONFIG = {
   WEDDING_DATE: '2026-10-25T12:30:00+09:00',
 
   VENUE_NAME: '코엑스 아셈볼룸',
-  VENUE_ADDR: '강남구 영동대로 517 코엑스 컨벤션센터 2층',
+  VENUE_ADDR: '강남구 영동대로 513 코엑스 2층',
   NAVER_MAP_URL: 'https://naver.me/FMcvEUZS',
   KAKAO_MAP_URL: 'https://place.map.kakao.com/1151703248',
   TMAP_MAP_URL: 'https://tmap.life/f380ecf6',
