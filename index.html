@@ -139,9 +139,9 @@ section{position:relative;}
   transition:color 1.8s ease;
 }
 .hero-title{
-  font-size:clamp(40px,15vw,120px);  /* 한 줄 유지: 화면 좁으면 자동 축소 */
+  font-size:clamp(38px,13vw,100px);  /* 한 줄 유지: 화면 좁으면 자동 축소 */
   white-space:nowrap;
-  font-weight:800;line-height:1.12;letter-spacing:-.02em;
+  font-weight:800;line-height:1.12;
   --g1:#8B8B8B;--g2:#304352;                       /* 영상 모드: 진회색 */
   background:linear-gradient(287deg, var(--g1), var(--g2));
   -webkit-background-clip:text;background-clip:text;
@@ -241,9 +241,10 @@ section{position:relative;}
 .hl-date-card{position:relative;overflow:hidden;justify-content:space-between !important;}
 
 /* ---------- 3. 드레스 컨셉 4종 ---------- */
-.dress{height:200vh;}  /* 2배 높이 → 스크롤하는 동안 이미지 고정+블러 */
+/* 섹션 고정(pin)은 GSAP ScrollTrigger가 JS로 관리 (CSS position:sticky는 여러 구간이
+   이어질 때 스크롤 방향을 바꾸면 튀는 브라우저 버그가 있어 피함) */
 .dress-sticky{
-  position:sticky;top:0;height:100svh;overflow:hidden;
+  position:relative;height:100svh;overflow:hidden;
 }
 .dress-sticky img{
   width:100%;height:100%;object-fit:cover;
@@ -269,6 +270,7 @@ section{position:relative;}
   padding:20px max(24px, calc((100vw - 980px)/2 + 24px)) calc(28px + env(safe-area-inset-bottom));
   scrollbar-width:none;
   will-change:opacity,transform;
+  opacity:0;transform:translateY(48px);   /* 고정(pin) 시작 전 기본 상태 — JS 최초 갱신 전 잠깐 다 보였다 사라지는 것 방지 */
 }
 .cards::-webkit-scrollbar{display:none;}
 /* 카드들이 화면 폭보다 적을 때 중앙 정렬 (넘치면 기존 스크롤 유지) */
@@ -307,7 +309,7 @@ section{position:relative;}
   display:flex;align-items:center;justify-content:center;
 }
 .lb-slide img{
-  width:100%;height:100%;object-fit:contain;border-radius:14px;
+  width:100%;height:100%;object-fit:contain;
   display:block;
 }
 .lb-close{
@@ -569,7 +571,7 @@ section{position:relative;}
     <img class="hero-still" src="./images/main.jpeg" alt="" aria-hidden="true" />
     <div class="hero-float">
       <p class="hero-sub">형진과 가나</p>
-      <p class="hero-title">마침내, 부부</p>
+      <p class="hero-title" id="hero-title">천천히, 끝까지.</p>
     </div>
     <a class="hero-cta" href="#location">바로가기</a>
   </section>
@@ -916,11 +918,26 @@ section{position:relative;}
   </div>
 </div>
 
+<!-- 갤러리 5꼭지 스크롤 고정(pin) 연출용: 여러 sticky 구간이 이어질 때 방향을 바꾸면
+     튀는 브라우저 버그를 피하기 위해 CSS position:sticky 대신 사용 -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script>
 /* ==========================================================
    설정 — 이 블록만 수정하면 됨
    ========================================================== */
 const CONFIG = {
+  // 히어로 타이틀 문구 — 방문할 때마다 이 중 하나를 랜덤으로 골라 보여줌
+  HERO_TITLES: [
+    '천천히, 끝까지.',
+    '조용히, 오래.',
+    '계속 따뜻하게.',
+    '시끄럽게. 다정하게.',
+    '가볍게, 단단하게.',
+    '평범하게. 특별하게.',
+    '눈치껏, 다정하게.',
+  ],
+
   // RSVP 백엔드 → 구글 스프레드시트(Apps Script 웹앱)로 연결.
   // server/rsvp-apps-script.gs 를 스프레드시트에 배포하고 나온 웹 앱 URL(…/exec)을 아래에 붙여넣을 것.
   API_URL: 'https://script.google.com/macros/s/AKfycbwIPasZAYT39n84NBOF43dSRs6rThM4AO5kbXJ6NOMeB75-x3N9oCjz72arYONQdI_y/exec',
@@ -982,6 +999,8 @@ const CONFIG = {
 })();
 
 /* ---------- 설정값 주입 ---------- */
+document.getElementById('hero-title').textContent =
+  CONFIG.HERO_TITLES[Math.floor(Math.random() * CONFIG.HERO_TITLES.length)];
 document.getElementById('venue-name').textContent = CONFIG.VENUE_NAME;
 document.getElementById('venue-addr').textContent = CONFIG.VENUE_ADDR;
 document.getElementById('link-naver').href = CONFIG.NAVER_MAP_URL;
@@ -1017,7 +1036,7 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   document.head.appendChild(s);
 })();
 
-/* ---------- 드레스 섹션: 스크롤 블러 ---------- */
+/* ---------- 히어로: 스크롤 블러 ---------- */
 (function () {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce) {
@@ -1028,50 +1047,63 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
     document.getElementById('hero').classList.add('photo');
     return;
   }
-  // 매 스크롤 프레임마다 querySelector를 다시 타지 않도록 요소 참조를 한 번만 캐싱
-  // (반복 DOM 탐색이 프레임을 갉아먹으면 스크롤이 튕기는/끊기는 느낌으로 느껴짐)
-  const sections = Array.from(document.querySelectorAll('.dress')).map(sec => ({
-    sec,
-    img: sec.querySelector('.dress-sticky > img'),
-    cards: sec.querySelector('.cards'),
-  }));
   const heroMedia = document.querySelectorAll('#hero > video, #hero > img');
   const MAX_BLUR = 10;   // 필터 블러 강도 (px) — 16→10으로 낮춰 GPU 부담 완화
   let ticking = false;
   function update() {
     const vh = window.innerHeight;
-    // 히어로: 스크롤 내릴수록 살짝 확대 + 블러
     const hp = Math.min(1, Math.max(0, window.scrollY / vh));
     heroMedia.forEach(el => {
       el.style.filter = 'blur(' + (hp * MAX_BLUR).toFixed(1) + 'px)';
       el.style.transform = 'scale(' + (1 + hp * 0.06).toFixed(3) + ')';
     });
-    sections.forEach(({ sec, img, cards }) => {
-      const rect = sec.getBoundingClientRect();
-      // 섹션이 화면을 지나는 동안 0→1 (아래로 내릴수록 블러)
-      const p = Math.min(1, Math.max(0, -rect.top / (rect.height - vh)));
-      // 사진은 전체 화면 고정, 확대 + 블러만
-      if (img) {
-        img.style.filter = 'blur(' + (p * MAX_BLUR).toFixed(1) + 'px)';
-        img.style.transform = 'scale(' + (1 + p * 0.06).toFixed(3) + ')';
-      }
-      // 서브 카드: 블러가 진행되면 아래에서 떠오름 (p 0.25→0.85 구간)
-      if (cards) {
-        const q = Math.min(1, Math.max(0, (p - 0.25) / 0.6));
-        cards.style.opacity = q;
-        cards.style.transform = 'translateY(' + ((1 - q) * 48).toFixed(1) + 'px)';
-      }
-    });
   }
   window.addEventListener('scroll', () => {
     if (ticking) return;
     ticking = true;
-    requestAnimationFrame(() => {
-      ticking = false;
-      update();
-    });
+    requestAnimationFrame(() => { ticking = false; update(); });
   }, { passive: true });
   update();
+})();
+
+/* ---------- 드레스 섹션: 스크롤 고정(pin) + 블러 (GSAP ScrollTrigger) ----------
+   CSS position:sticky 대신 쓰는 이유: 200vh 구간 5개가 연달아 이어질 때
+   스크롤 방향을 경계에서 바꾸면 브라우저가 sticky 위치를 잘못 재계산해서
+   위/아래 섹션으로 튀는 버그가 있음 (특히 iOS Safari). GSAP이 JS로 직접
+   고정/해제를 관리해서 이 문제를 피한다. */
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+  const MAX_BLUR = 10;
+  document.querySelectorAll('.dress').forEach(sec => {
+    const sticky = sec.querySelector('.dress-sticky');
+    const img = sec.querySelector('.dress-sticky > img');
+    const cards = sec.querySelector('.cards');
+    ScrollTrigger.create({
+      trigger: sec,
+      start: 'top top',
+      end: '+=115%',         // 뷰포트 높이의 115%만큼 스크롤하는 동안 고정 (기존보다 살짝 더 길게)
+      pin: sticky,
+      scrub: true,
+      onUpdate(self) {
+        const p = self.progress;   // 0→1, 고정 구간을 지나는 동안
+        const bp = Math.min(1, Math.max(0, (p - 0.15) / 0.85));   // 블러는 15% 지점부터 시작
+        if (img) {
+          img.style.filter = 'blur(' + (bp * MAX_BLUR).toFixed(1) + 'px)';
+          img.style.transform = 'scale(' + (1 + bp * 0.06).toFixed(3) + ')';
+        }
+        if (cards) {   // 서브 카드: 블러가 진행되면 아래에서 떠오름 (p 0.25→0.85 구간)
+          const q = Math.min(1, Math.max(0, (p - 0.25) / 0.6));
+          cards.style.opacity = q;
+          cards.style.transform = 'translateY(' + ((1 - q) * 48).toFixed(1) + 'px)';
+        }
+      },
+    });
+  });
+  // 5개 섹션의 고정(pin) 구간을 전부 만든 뒤에 다시 계산해야, 앞 섹션이 만든 여백이
+  // 뒤 섹션의 시작/끝 위치 계산에 반영된다 (안 하면 카드가 갑자기 사라졌다 나타남)
+  ScrollTrigger.refresh();
 })();
 
 /* ---------- 하이라이트 카드 인디케이터 ---------- */
@@ -1165,8 +1197,20 @@ document.addEventListener('dragstart', e => {
 });
 
 /* ---------- 갤러리 카드 확대 보기 ---------- */
+/* 라이트박스 열려있는 동안 뒤 페이지 스크롤 잠금.
+   (body를 position:fixed로 옮기는 방식은 스크롤 위치가 살짝 튀는 부작용이 있어서
+   그냥 스크롤 자체를 막는 overflow:hidden만 사용 — 위치를 전혀 건드리지 않음) */
+function lockBodyScroll() {
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+}
+function unlockBodyScroll() {
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
+}
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('show');
+  unlockBodyScroll();
 }
 (function () {
   const lb = document.getElementById('lightbox');
@@ -1180,6 +1224,17 @@ function closeLightbox() {
     next: track.querySelector('img[data-role="next"]'),
   };
   let list = [], idx = 0, animating = false, gen = 0;
+
+  // 3패널 트랙(이전|현재|다음, 각 칸 33.3333%) 좌표 상수 — 각 칸이 화면 전체를 차지하도록
+  // 가운데 칸(현재 사진)이 보이는 기준 위치가 REST_X
+  const REST_X = -33.3333, NEXT_X = -66.6667, PREV_X = 0;
+  function setTrackX(x) { track.style.transform = 'translateX(' + x + '%)'; }
+  function snapTrackTo(x) {   // 트랜지션 없이 순간 이동
+    track.classList.add('dragging');
+    setTrackX(x);
+    track.offsetHeight;   // 강제 리플로우
+    track.classList.remove('dragging');
+  }
 
   function loopIndex(i) {
     return ((i % list.length) + list.length) % list.length;
@@ -1210,12 +1265,10 @@ function closeLightbox() {
     gen++;              // 새 세션 시작 → 이전에 진행 중이던 슬라이드 애니메이션 콜백을 무효화
     animating = false;
     idx = loopIndex(startIdx);
-    track.classList.add('dragging');
-    track.style.transform = 'translateX(-33.3333%)';
-    track.offsetHeight;
-    track.classList.remove('dragging');
+    snapTrackTo(REST_X);
     setSlides();
     lb.classList.add('show');
+    lockBodyScroll();
   }
 
   // 카드 탭 → 해당 섹션 사진 목록으로 열기
@@ -1234,16 +1287,13 @@ function closeLightbox() {
     if (animating || list.length < 2) return;
     animating = true;
     const myGen = gen;
-    track.style.transform = 'translateX(' + (dir === 1 ? '-66.6667%' : '0%') + ')';
+    setTrackX(dir === 1 ? NEXT_X : PREV_X);
     track.addEventListener('transitionend', function onEnd() {
       track.removeEventListener('transitionend', onEnd);
       if (myGen !== gen) return;   // 그 사이 라이트박스가 닫혔다 다른 사진으로 다시 열렸으면 무시
       idx = loopIndex(idx + dir);
-      track.classList.add('dragging');   // 트랜지션 잠깐 끄고 순간 이동
       setSlides();
-      track.style.transform = 'translateX(-33.3333%)';
-      track.offsetHeight;                // 강제 리플로우
-      track.classList.remove('dragging');
+      snapTrackTo(REST_X);
       animating = false;
     }, { once: true });
   }
@@ -1251,11 +1301,13 @@ function closeLightbox() {
   prevBtn.addEventListener('click', e => { e.stopPropagation(); slideTo(-1); });
   nextBtn.addEventListener('click', e => { e.stopPropagation(); slideTo(1); });
 
-  // 좌우 스와이프로 이전/다음 (자연스러운 슬라이드 애니메이션), 짧은 탭은 닫기
+  // 좌우 스와이프로 이전/다음 — 손가락을 따라 트랙이 실시간으로 같이 움직이다가,
+  // 손을 떼면 많이 움직인 쪽으로 이어서 슬라이드되거나 원위치로 스냅백.
   // 손가락 2개 이상(핀치줌) 상태에서는 스와이프·탭-닫기 판정을 무시해야
   // 핀치줌 후 손을 뗄 때 실수로 라이트박스가 닫히지 않는다.
   const activePointers = new Set();
   let sx = 0, swiped = false, primaryPointerId = null, pinched = false;
+  let dragging = false, dragDx = 0;
   lb.addEventListener('pointerdown', e => {
     activePointers.add(e.pointerId);
     if (activePointers.size === 1) {
@@ -1263,22 +1315,51 @@ function closeLightbox() {
       sx = e.clientX;
       swiped = false;
       pinched = false;
+      if (!animating && list.length > 1) {
+        dragging = true;
+        dragDx = 0;
+        track.classList.add('dragging');   // 드래그 중엔 트랜지션 끄고 손가락에 즉시 반응
+      }
     } else {
       pinched = true;            // 두 번째 손가락 등장 → 핀치줌으로 간주
       primaryPointerId = null;
+      if (dragging) {
+        dragging = false;
+        snapTrackTo(REST_X);
+      }
     }
+  });
+  lb.addEventListener('pointermove', e => {
+    if (!dragging || e.pointerId !== primaryPointerId) return;
+    dragDx = e.clientX - sx;
+    const stageW = stage.getBoundingClientRect().width || window.innerWidth;
+    const raw = REST_X + (dragDx / stageW) * -REST_X;   // 드래그 거리를 트랙 좌표계로 환산
+    setTrackX(Math.max(NEXT_X, Math.min(PREV_X, raw)));   // 옆 칸을 넘어서까지 끌리지 않게 제한
   });
   function endPointer(e) {
     activePointers.delete(e.pointerId);
     if (pinched || e.pointerId !== primaryPointerId) return;
-    const dx = e.clientX - sx;
+    primaryPointerId = null;
+    if (!dragging) return;
+    dragging = false;
+    track.classList.remove('dragging');   // 트랜지션 다시 켬 → 이어서 부드럽게 완료/복귀
+    const dx = dragDx;
+    dragDx = 0;
     if (Math.abs(dx) > 40 && list.length > 1) {
       swiped = true;
       slideTo(dx < 0 ? 1 : -1);
+    } else {
+      setTrackX(REST_X);
     }
   }
   lb.addEventListener('pointerup', endPointer);
-  lb.addEventListener('pointercancel', e => activePointers.delete(e.pointerId));
+  lb.addEventListener('pointercancel', e => {
+    activePointers.delete(e.pointerId);
+    if (dragging && e.pointerId === primaryPointerId) {
+      dragging = false;
+      snapTrackTo(REST_X);
+    }
+  });
   lb.addEventListener('click', e => {
     if (pinched) { pinched = false; return; }    // 핀치줌 직후 발생하는 클릭은 무시
     if (swiped) { swiped = false; return; }       // 스와이프 직후의 클릭은 무시
