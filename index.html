@@ -244,6 +244,8 @@ section{position:relative;}
 .dress{height:200vh;}  /* 2배 높이 → 스크롤하는 동안 이미지 고정+블러 */
 .dress-sticky{
   position:sticky;top:0;height:100svh;overflow:hidden;
+  will-change:transform;   /* 연속된 sticky 구간 경계에서 스크롤 방향이 바뀔 때 튀는 현상 완화 (iOS Safari) */
+  transform:translateZ(0);
 }
 .dress-sticky img{
   width:100%;height:100%;object-fit:cover;
@@ -595,7 +597,7 @@ section{position:relative;}
           <p class="date-big">2026년 10월 25일<br />일요일 오후 12시 30분</p>
           <p class="date-en">Sunday, October 25, 2026<br /> 12:30 PM</p>
         </div>
-        <img class="hl-card-img" loading="lazy" decoding="async" src="./images/highlights/card2.png" alt="" />
+        <img class="hl-card-img" loading="lazy" decoding="async" src="./images/highlights/card2.jpg" alt="" />
       </div>
       <div class="hl-card fade hl-venue-card">
         <div>
@@ -647,15 +649,13 @@ section{position:relative;}
       </div>
       <div class="cards">
         <img loading="lazy" decoding="async" src="./images/gallery/2-sub1.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/2-sub2.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/2-sub3.jpeg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/2-sub4.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/2-sub5.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/2-sub2.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/2-sub3.jpg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/2-sub4.jpeg" alt="" />
+        <img loading="lazy" decoding="async" src="./images/gallery/2-sub5.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/2-sub6.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/2-sub7.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/2-sub8.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/2-sub9.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/2-sub10.jpg" alt="" />
       </div>
     </div>
   </section>
@@ -702,7 +702,6 @@ section{position:relative;}
         <img loading="lazy" decoding="async" src="./images/gallery/4-sub6.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/4-sub7.jpg" alt="" />
         <img loading="lazy" decoding="async" src="./images/gallery/4-sub8.jpg" alt="" />
-        <img loading="lazy" decoding="async" src="./images/gallery/4-sub9.jpg" alt="" />
       </div>
     </div>
   </section>
@@ -1040,7 +1039,7 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   }));
   const heroMedia = document.querySelectorAll('#hero > video, #hero > img');
   const MAX_BLUR = 10;   // 필터 블러 강도 (px) — 16→10으로 낮춰 GPU 부담 완화
-  let ticking = false, skipFrame = false;
+  let ticking = false;
   function update() {
     const vh = window.innerHeight;
     // 히어로: 스크롤 내릴수록 살짝 확대 + 블러
@@ -1071,8 +1070,6 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
     ticking = true;
     requestAnimationFrame(() => {
       ticking = false;
-      skipFrame = !skipFrame;
-      if (skipFrame) return;   // 프레임을 한 번씩 걸러 블러 재계산 빈도를 절반으로 줄임
       update();
     });
   }, { passive: true });

@@ -28,16 +28,18 @@ HTML = ROOT / 'index.html'
 # (대상 glob, 용량 한도 KB, 리샘플 최대 px, JPEG 품질)
 COMPRESS_RULES = [
     ('gallery/*-main.*',   900, 2400, 78),   # 갤러리 메인: 풀스크린
-    ('gallery/*-sub*.*',   900, 2400, 78),   # 갤러리 서브 카드
-    ('main.jpg',           900, 2400, 78),   # 히어로 poster
+    ('gallery/*-sub*.*',   300, 1000, 74),   # 갤러리 서브 카드: 화면엔 최대 280px로만 뜸
+    ('main.jp*g',          900, 2400, 78),   # 히어로 poster (main.jpg/main.jpeg 둘 다 매칭)
     ('thumbnail.jpg',      500, 1600, 80),   # 카톡 og:image
     ('rsvp/groom.*',       500, 1200, 80),   # RSVP 프로필
     ('rsvp/bridal.*',      500, 1200, 80),
-    ('highlights/*.png',  1500, 1200, None), # PNG는 리샘플만 (품질 옵션 없음)
+    ('highlights/*.png',  1500, 1200, None), # PNG는 리샘플만 (품질 옵션 없음) — 실사진이면 jpg로 바꾸는 게 훨씬 효율적
+    ('highlights/*.jpg',   900, 1200, 78),
+    ('highlights/*.jpeg',  900, 1200, 78),
     ('information/*.png', 1500, 1200, None), # 약도 등 안내 이미지
 
 ]
-RETRY_PX, RETRY_Q = 1800, 68   # 1차 압축 후에도 한도 초과면 더 강하게
+RETRY_SCALE, RETRY_Q = 0.75, 68   # 1차 압축 후에도 한도 초과면 규칙별 max_px의 75%로 더 강하게
 IMG_EXT = re.compile(r'\.(jpe?g|png|webp)$', re.I)
 
 
@@ -65,7 +67,7 @@ def compress(check_only: bool) -> bool:
             run_sips(f, max_px, quality)
             new_kb = f.stat().st_size // 1024
             if new_kb > limit_kb and quality is not None:   # 디테일 많은 사진 재시도
-                run_sips(f, RETRY_PX, RETRY_Q)
+                run_sips(f, int(max_px * RETRY_SCALE), RETRY_Q)
                 new_kb = f.stat().st_size // 1024
             print(f'[압축] {f.relative_to(ROOT)}: {kb}KB → {new_kb}KB')
     return ok
