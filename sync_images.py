@@ -26,20 +26,21 @@ IMAGES = ROOT / 'images'
 HTML = ROOT / 'index.html'
 
 # (대상 glob, 용량 한도 KB, 리샘플 최대 px, JPEG 품질)
+# 웹에서 보기 적당한 수준으로: 화질 저하가 눈에 띄지 않는 선에서만 압축 (너무 빡빡하게 잡지 말 것)
 COMPRESS_RULES = [
-    ('gallery/*-main.*',   900, 2400, 78),   # 갤러리 메인: 풀스크린
-    ('gallery/*-sub*.*',   300, 1000, 74),   # 갤러리 서브 카드: 화면엔 최대 280px로만 뜸
-    ('main.jp*g',          900, 2400, 78),   # 히어로 poster (main.jpg/main.jpeg 둘 다 매칭)
-    ('thumbnail.jpg',      500, 1600, 80),   # 카톡 og:image
-    ('rsvp/groom.*',       500, 1200, 80),   # RSVP 프로필
-    ('rsvp/bridal.*',      500, 1200, 80),
+    ('gallery/*-main.*',  3000, 3200, 92),   # 갤러리 메인: 풀스크린, 고화질 유지 (약 3MB 목표)
+    ('gallery/*-sub*.*',  1000, 2200, 88),   # 갤러리 서브 카드 (약 1MB 목표)
+    ('main.jp*g',         3000, 3200, 92),   # 히어로 poster (main.jpg/main.jpeg 둘 다 매칭) — 갤러리 메인과 동일하게 고화질 유지
+    ('thumbnail.jpg',      500, 1600, 82),   # 카톡 og:image
+    ('rsvp/groom.*',       500, 1200, 82),   # RSVP 프로필
+    ('rsvp/bridal.*',      500, 1200, 82),
     ('highlights/*.png',  1500, 1200, None), # PNG는 리샘플만 (품질 옵션 없음) — 실사진이면 jpg로 바꾸는 게 훨씬 효율적
-    ('highlights/*.jpg',   900, 1200, 78),
-    ('highlights/*.jpeg',  900, 1200, 78),
+    ('highlights/*.jpg',   900, 1200, 82),
+    ('highlights/*.jpeg',  900, 1200, 82),
     ('information/*.png', 1500, 1200, None), # 약도 등 안내 이미지
 
 ]
-RETRY_SCALE, RETRY_Q = 0.75, 68   # 1차 압축 후에도 한도 초과면 규칙별 max_px의 75%로 더 강하게
+RETRY_SCALE, RETRY_Q = 0.85, 76   # 1차 압축 후에도 한도 초과면 살짝만 더 줄임 (기존 0.75/68은 너무 공격적이었음)
 IMG_EXT = re.compile(r'\.(jpe?g|png|webp)$', re.I)
 
 
