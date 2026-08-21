@@ -570,7 +570,7 @@ section{position:relative;}
   <section id="hero">
     <!-- 히어로 영상: 무음 자동재생 1회 → 끝나면 main.jpg로 크로스페이드 -->
     <video src="./images/main.mp4" poster="./images/main.jpeg"
-           autoplay muted playsinline disablepictureinpicture
+           muted playsinline disablepictureinpicture
            aria-label="형진과 가나의 웨딩 영상"></video>
     <img class="hero-still" src="./images/main.jpeg" alt="" aria-hidden="true" />
     <div class="hero-float">
@@ -997,8 +997,6 @@ const CONFIG = {
     document.getElementById('hero').classList.add('photo');
   };
   if (!CONFIG.HERO_VIDEO_ENABLED) {  /* 영상 비활성화: 재생 없이 바로 사진 모드 */
-    v.pause();
-    v.removeAttribute('autoplay');
     toPhoto();
     return;
   }
