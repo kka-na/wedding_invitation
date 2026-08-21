@@ -931,6 +931,8 @@ section{position:relative;}
    설정 — 이 블록만 수정하면 됨
    ========================================================== */
 const CONFIG = {
+  // 히어로 영상 자동재생 여부 — false면 영상 재생 없이 바로 main.jpeg 사진으로 표시
+  HERO_VIDEO_ENABLED: false,
   // 히어로 타이틀 문구 — 방문할 때마다 이 중 하나를 랜덤으로 골라 보여줌
   HERO_TITLES: [
     '천천히, 끝까지.',
@@ -994,6 +996,12 @@ const CONFIG = {
     still.classList.add('show');
     document.getElementById('hero').classList.add('photo');
   };
+  if (!CONFIG.HERO_VIDEO_ENABLED) {  /* 영상 비활성화: 재생 없이 바로 사진 모드 */
+    v.pause();
+    v.removeAttribute('autoplay');
+    toPhoto();
+    return;
+  }
   v.addEventListener('ended', () => {
     toPhoto();
     setTimeout(() => v.pause(), 2000);   /* 페이드 완료 후 영상 정지 (배터리 절약) */
