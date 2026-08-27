@@ -280,10 +280,10 @@ section{position:relative;}
 /* 섹션 고정(pin)은 GSAP ScrollTrigger가 JS로 관리 (CSS position:sticky는 여러 구간이
    이어질 때 스크롤 방향을 바꾸면 튀는 브라우저 버그가 있어 피함) */
 .dress-sticky{
-  /* 100svh(주소창 펼쳐진 상태 기준, 더 작음) 대신 100lvh(주소창 접힌 최종 크기 기준) —
-     그래야 스크롤 중 모바일 브라우저 주소창이 자동으로 숨을 때 실제 화면보다
-     작게 고정되어 아래에 빈 공간이 남는 문제가 없다 */
-  position:relative;height:100lvh;overflow:hidden;
+  /* 100dvh: 주소창 유무와 상관없이 지금 실제 화면 크기에 항상 꽉 차게.
+     (스크롤 몇 픽셀 동안 핀이 유지되는지는 JS가 별도로 계산하며 이 값과는
+     무관 — 박스 크기만 실시간으로 화면에 맞춘다) */
+  position:relative;height:100dvh;overflow:hidden;
 }
 .dress-sticky img{
   width:100%;height:100%;object-fit:cover;
