@@ -1,0 +1,603 @@
+/* KoPub돋움 (자체 호스팅, fonts/ 폴더의 woff2) */
+@font-face{
+  font-family:'KoPubDotum';
+  src:url('./fonts/KoPubDotum-Light.woff2') format('woff2');
+  font-weight:300;font-display:swap;
+}
+@font-face{
+  font-family:'KoPubDotum';
+  src:url('./fonts/KoPubDotum-Medium.woff2') format('woff2');
+  font-weight:400 500;font-display:swap;
+}
+@font-face{
+  font-family:'KoPubDotum';
+  src:url('./fonts/KoPubDotum-Bold.woff2') format('woff2');
+  font-weight:600 800;font-display:swap;
+}
+:root{
+  /* ── 색상 테마 ── */
+  --bg:#FFFFFF;
+  --gray:#F5F5F7;
+  --primary:#066fdd;
+  --secondary:#83cf00;
+  --third:#cf0064;
+  --fourth:#F97114;
+  --fifth:#ebb800;
+  --ink:#1D1D1F;
+  --ink2:#6E6E73;
+  --sans:'KoPubDotum', 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{
+  scroll-behavior:smooth;
+  /* 안드로이드 크롬은 기기의 '글자 크기(접근성)' 설정에 맞춰 텍스트를 자동으로
+     확대하는데, 고정폭 오버레이 위에 배치된 텍스트(갤러리 설명 등)는 이 확대에
+     대응하도록 만들어지지 않아 줄바꿈이 깨진다. 디자인한 px 크기 그대로 고정. */
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+/* 페이지 폭을 화면 크기에 고정 (좌우 흔들림 방지) */
+html,body{
+  width:100%;max-width:100%;
+  overflow-x:clip;               /* hidden 대신 clip: sticky 안 깨짐 */
+  overscroll-behavior-x:none;
+  scrollbar-width:none;          /* 스크롤바 숨김 (Firefox) */
+}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}  /* 스크롤바 숨김 (크롬·사파리) */
+body{
+  background:var(--bg);
+  font-family:var(--sans);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  word-break:keep-all;
+}
+img{
+  display:block;
+  /* 이미지 저장·복사 방지: 드래그, 길게 눌러 저장(iOS), 선택 차단 */
+  -webkit-user-drag:none;user-select:none;-webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+section{position:relative;}
+.wrap{max-width:980px;margin:0 auto;padding:0 24px;}
+
+/* ---------- 공통 타이포 (애플 톤) ---------- */
+.eyebrow{font-size:14px;font-weight:600;color:var(--primary);letter-spacing:.02em;}
+.headline{font-size:clamp(34px,7vw,56px);font-weight:800;letter-spacing:-.02em;line-height:1.15;}
+.subhead{font-size:clamp(16px,3vw,21px);font-weight:500;color:var(--ink2);line-height:1.5;}
+.section-head{text-align:left;padding:96px 24px 40px;max-width:980px;margin:0 auto;}
+.section-head h2{font-size:clamp(28px,6vw,44px);font-weight:800;letter-spacing:-.02em;}
+.section-head p{margin-top:12px;font-size:16px;color:var(--ink2);}
+
+/* ---------- 페이드인 ---------- */
+.fade{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1);}
+.fade.in{opacity:1;transform:none;}
+@media (prefers-reduced-motion: reduce){
+  .fade{opacity:1;transform:none;transition:none;}
+  html{scroll-behavior:auto;}
+}
+
+/* ---------- 1. 히어로 (전체 화면) ---------- */
+#hero{height:100svh;position:relative;overflow:hidden;text-align:center;}
+#hero > img:first-of-type,
+#hero > video{
+  width:100%;height:100%;object-fit:cover;        /* 메인 사진만 전체 화면 */
+}
+/* 영상 종료 후 크로스페이드되는 스틸 사진 */
+.hero-still{
+  position:absolute;inset:0;z-index:1;
+  width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity 1.8s ease;   /* 전환 속도 조절 */
+  pointer-events:none;
+}
+.hero-still.show{opacity:1;}
+/* 사진 위 베일(#CECECE)이 아래→위로 부드럽게 걷혀 올라감 */
+#hero::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:280%;
+  background:linear-gradient(0deg, rgba(206,206,206,0) 5%, rgba(206,206,206,.9 ) 60%);  /* 색·최대 농도 조절 */
+  z-index:5;pointer-events:none;
+  animation:heroWipe 1.8s cubic-bezier(.4,0,.2,1) .2s forwards;  /* 속도·지연 조절 */
+}
+@keyframes heroWipe{to{transform:translateY(-100%);}}
+.hero-float{
+  position:absolute;top:5svh;left:50%;z-index:6;   /* 위치: top */
+  width:100%;                                      /* 화면 폭에 꽉 맞춤 */
+  transform:translateX(-50%);
+  pointer-events:none;
+  /* 텍스트는 단순 페이드인 (사진과 동시 시작) */
+  opacity:0;
+  animation:floatIn .9s ease-out 1s forwards;    /* 베일이 거의 다 올라간 시점에 등장 */
+}
+@keyframes floatIn{to{opacity:1;}}
+@media (prefers-reduced-motion: reduce){
+  #hero::after{display:none;}
+  .hero-float{opacity:1;animation:none;}
+}
+/* 그라디언트 색을 부드럽게 전환하기 위한 커스텀 속성 (iOS 16.4+, 미지원 기기는 즉시 전환) */
+@property --g1{syntax:'<color>';inherits:false;initial-value:#8B8B8B;}
+@property --g2{syntax:'<color>';inherits:false;initial-value:#304352;}
+.hero-sub{
+  font-size:20px;font-weight:500;color:#304352;
+  transition:color 1.8s ease;
+}
+.hero-detail{
+  margin-top:6px;
+  font-size:15px;font-weight:500;color:#304352;
+  white-space:pre-line;
+  transition:color 1.8s ease;
+}
+.hero-title{
+  font-size:clamp(32px,9vw,72px);  /* 한 줄 유지: 화면 좁으면 자동 축소 */
+  margin-top:6px;
+  white-space:nowrap;
+  font-weight:800;line-height:1.12;
+  --g1:#8B8B8B;--g2:#304352;                       /* 영상 모드: 진회색 */
+  background:linear-gradient(287deg, var(--g1), var(--g2));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  transition:--g1 1.8s ease, --g2 1.8s ease;
+}
+/* 사진 모드(영상 종료 후): --gray 단일톤으로 전환 */
+#hero.photo .hero-title{--g1:#F5F5F7;--g2:#F5F5F7;}
+#hero.photo .hero-sub{color:#F5F5F7;}
+#hero.photo .hero-detail{color:#F5F5F7;}
+.hero-calendar-btn{
+  margin-top:22px;
+  display:inline-block;pointer-events:auto;cursor:pointer;
+  padding:11px 26px;border-radius:99px;
+  border:1px solid rgba(48,67,82,.45);
+  background:rgba(48,67,82,.06);
+  color:#304352;font-family:var(--sans);
+  font-size:14px;font-weight:600;
+  transition:background .2s ease, border-color 1.8s ease, color 1.8s ease;
+}
+.hero-calendar-btn:active{background:rgba(48,67,82,.16);}
+#hero.photo .hero-calendar-btn{
+  border-color:rgba(255,255,255,.55);
+  margin-top:12px;
+  background:rgba(255,255,255,.12);
+  color:#F5F5F7;
+}
+#hero.photo .hero-calendar-btn:active{background:rgba(255,255,255,.26);}
+/* 히어로 하단 중앙 버튼 (애플 스타일 알약) — D-7부터 JS가 .show 부여 */
+.hero-cta{
+  position:absolute;left:50%;bottom:calc(6svh + env(safe-area-inset-bottom));z-index:6;
+  transform:translateX(-50%);
+  display:none;padding:13px 30px;border-radius:99px;
+  background:var(--primary);color:#fff;
+  font-size:16px;font-weight:600;text-decoration:none;
+  opacity:0;animation:floatIn .9s ease-out 1s forwards;   /* 텍스트와 같이 등장 */
+}
+.hero-cta.show{display:inline-block;}
+.hero-cta:active{opacity:.8;}
+@media (prefers-reduced-motion: reduce){
+  .hero-cta{opacity:1;animation:none;}
+}
+
+/* ---------- 2. 하이라이트 (가로 스크롤 카드) ---------- */
+#highlights{background:var(--bg);}
+.hl-cards{
+  display:flex;gap:20px;
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;  /* 세로 스크롤 차단 */
+  padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 28px;
+  scrollbar-width:none;
+}
+.hl-cards::-webkit-scrollbar{display:none;}
+/* 카드 페이지 인디케이터 (애플 스타일 알약) */
+.hl-pager{
+  display:flex;gap:9px;align-items:center;width:max-content;
+  margin:0 auto 72px;padding:11px 15px;
+  background:var(--gray);border-radius:99px;
+}
+.hl-pager .dot{
+  width:8px;height:8px;border-radius:99px;border:none;padding:0;cursor:pointer;
+  background:#86868B;opacity:.55;transition:all .35s ease;
+}
+.hl-pager .dot.active{width:24px;opacity:1;}
+.hl-card{
+  flex:0 0 86%;max-width:400px;aspect-ratio:344/486;  /* 애플 apple.com 프로모 카드 실측 비율 (344x486) */
+  background:var(--gray);border-radius:28px;
+  padding:40px 30px;
+  scroll-snap-align:center;
+  display:flex;flex-direction:column;text-align:left;
+  overflow:hidden;  /* 좁은 화면에서 콘텐츠가 넘쳐도 카드 밖으로 삐져나오지 않도록 안전장치 */
+}
+.hl-card:nth-child(odd){justify-content:flex-start;}  /* 홀수 카드: 위쪽 정렬 */
+.hl-card:nth-child(even){justify-content:flex-end;}   /* 짝수 카드: 아래쪽 정렬 */
+/* 애플 카드 타이포 통일: 본문 17px 굵게(700) + 보조 15px 회색 */
+.hl-card .msg{margin-top:0;font-size:17px;font-weight:700;color:var(--ink);line-height:1.65;letter-spacing:-.01em;}
+.hl-card .parents{font-size:17px;font-weight:700;line-height:2.1;letter-spacing:-.01em;}
+.hl-card .parents .rel{font-size:15px;font-weight:500;color:var(--ink2);padding:0 8px;}
+.hl-card .parents b{font-weight:700;}
+.hl-card .date-big{font-size:17px;font-weight:700;line-height:1.65;letter-spacing:-.01em;}
+.hl-card .date-en{margin-top:8px;font-size:15px;font-weight:500;color:var(--ink2);}
+.hl-card .venue-name{font-size:17px;font-weight:700;letter-spacing:-.01em;}
+.hl-card .venue-addr{margin-top:8px;font-size:15px;font-weight:500;color:var(--ink2);line-height:1.7;}
+
+/* 플로팅 바로가기 (하이라이트 도달 시 표시) */
+.float-cta{
+  position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:40;
+  margin-left:0;translate:-50% 0;   /* 아래쪽 중앙 정렬 */
+  display:flex;align-items:center;gap:12px;
+  padding:9px 9px 9px 20px;border-radius:99px;
+  background:rgba(255,255,255,.92);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:0 4px 12px rgba(0,0,0,.15);   /* blur 반경을 줄여 버튼 아래 회색 띠 번짐 방지 */
+  font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;
+  opacity:0;transform:translateY(16px);pointer-events:none;
+  transition:opacity .35s ease, transform .35s ease;
+}
+.float-cta.show{opacity:1;transform:none;pointer-events:auto;}
+.float-cta i{
+  width:34px;height:34px;border-radius:50%;flex:none;
+  background:var(--primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-style:normal;font-size:17px;font-weight:700;
+}
+
+/* 예식장 카드: 텍스트 아래에 사진 (카드 아래 가장자리까지 채움) */
+.hl-venue-card{justify-content:space-between !important;overflow:hidden;}
+.hl-card-img{
+  width:calc(100% + 60px);margin:20px -30px -40px;  /* 카드 패딩만큼 확장 */
+  flex:1;min-height:0;object-fit:cover;             /* 남는 공간 전부 채움 (잘림 허용) */
+}
+
+/* 카드1 하단 이미지 (원본 비율 유지, 맨 아래로) */
+.hl-card1-img{width:100%;margin-top:auto;object-fit:contain;}
+
+/* 날짜 카드: 텍스트 위쪽, 사진이 카드 아래 가장자리까지 채움 */
+.hl-date-card{position:relative;overflow:hidden;justify-content:space-between !important;}
+
+/* ---------- 3. 드레스 컨셉 4종 ---------- */
+/* 섹션 고정(pin)은 GSAP ScrollTrigger가 JS로 관리 (CSS position:sticky는 여러 구간이
+   이어질 때 스크롤 방향을 바꾸면 튀는 브라우저 버그가 있어 피함) */
+.dress-sticky{
+  /* dvh로 해봤더니 스크롤 중 핀(고정) 박스 크기가 실시간으로 바뀌면서 스페이서와
+     안 맞아 빈 막처럼 보이는 부작용이 실제로 발생해 되돌림. 핀 걸린 요소는
+     lvh(주소창 접힌 기준 고정값)로 둬야 안전하다. */
+  position:relative;height:100lvh;overflow:hidden;
+}
+.dress-sticky img{
+  width:100%;height:100%;object-fit:cover;
+  will-change:filter,transform;
+}
+
+.dress-label{
+  position:absolute;left:28px;top:6svh;z-index:2;  /* 블러 밴드 안 텍스트 위치 */
+  color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.35);
+}
+.dress-label{right:28px;}                     /* 본문 줄바꿈 폭 확보 */
+.dress-label .num{font-size:15px;font-weight:800;opacity:.9;margin-left:2px;letter-spacing:.02em;}
+.dress-label .name{font-size:30px;font-weight:800;letter-spacing:-.01em;margin-top:4px;line-height:1.3;}
+.dress-label .desc{margin-top:10px;margin-left:2px;font-size:14px;font-weight:500;line-height:1.75;color:rgba(255,255,255,.82);}
+/* 밝은 사진 위 텍스트는 어두운 색 (dark-label) */
+.dark-label{color:var(--ink);text-shadow:none;}
+.dark-label .desc{color:var(--ink2) !important;}
+/* 갤러리 5꼭지 진행 인디케이터 — 지금 몇 번째 이야기인지, 앞으로 몇 개 더 있는지 알려줌 */
+.dress-pager{
+  position:fixed;right:12px;top:6svh;z-index:50;   /* .dress-label과 같은 높이 */
+  display:flex;flex-direction:column;gap:7px;
+  padding:7px 5px;border-radius:999px;
+  background:rgba(0,0,0,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;transition:opacity .35s ease;
+}
+.dress-pager.show{opacity:1;}
+.dress-pager .dot{
+  width:4px;height:4px;border-radius:50%;
+  background:rgba(255,255,255,.55);
+  transition:background .25s ease, transform .25s ease;
+}
+.dress-pager .dot.active{
+  background:var(--dot-color, #fff);transform:scale(1.4);
+}
+@media (prefers-reduced-motion: reduce){
+  .dress-pager,.dress-pager .dot{transition:none;}
+}
+/* 서브 이미지 카드 — 블러된 메인 사진 위로 플로팅 */
+.cards{
+  position:absolute;left:0;right:0;bottom:9svh;z-index:3;  /* 아래에서 띄우는 정도 (플로팅 바로가기 버튼과 안 겹치게) */
+  display:flex;gap:14px;
+  overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:20px max(24px, calc((100vw - 980px)/2 + 24px)) calc(28px + env(safe-area-inset-bottom));
+  scrollbar-width:none;
+  will-change:opacity,transform;
+  opacity:0;transform:translateY(48px);   /* 고정(pin) 시작 전 기본 상태 — JS 최초 갱신 전 잠깐 다 보였다 사라지는 것 방지 */
+}
+.cards::-webkit-scrollbar{display:none;}
+/* 카드들이 화면 폭보다 적을 때 중앙 정렬 (넘치면 기존 스크롤 유지) */
+.cards img:first-child{margin-left:auto;}
+.cards img:last-child{margin-right:auto;}
+.cards img{
+  flex:0 0 58%;max-width:280px;aspect-ratio:3/4;object-fit:cover;
+  border-radius:22px;scroll-snap-align:center;
+  box-shadow:0 6px 14px rgba(0,0,0,.2);   /* blur 반경을 줄여 카드 사이·위로 그림자가 안개처럼 번지는 것 방지 */
+  cursor:pointer;
+}
+/* 카드 확대 보기 (라이트박스) */
+#lightbox{
+  position:fixed;inset:0;z-index:70;
+  background:rgba(0,0,0,.88);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  opacity:0;pointer-events:none;transition:opacity .28s ease;
+  touch-action:none;   /* 스와이프·핀치줌 전부 JS가 직접 처리 (브라우저 자체 페이지 확대는 고정 오버레이와 충돌해서 씀 안 함) */
+}
+#lightbox.show{opacity:1;pointer-events:auto;}
+.lb-stage{
+  position:relative;margin:0 auto;
+  width:94vw;max-width:94vw;height:70dvh;max-height:70dvh;  /* 이미지 로드 전 기본값, 로드되면 JS가 실제 비율에 맞게 재조정 */
+  overflow:hidden;
+  transform:scale(.94);transition:transform .28s ease, width .3s ease, height .3s ease;
+}
+#lightbox.show .lb-stage{transform:scale(1);}
+.lb-track{
+  display:flex;width:300%;height:100%;
+  transform:translateX(-33.3333%);
+  transition:transform .34s cubic-bezier(.22,.61,.36,1);
+}
+.lb-track.dragging{transition:none;}
+.lb-slide{
+  width:33.3333%;height:100%;flex:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.lb-slide img{
+  width:100%;height:100%;object-fit:contain;
+  display:block;
+  transform-origin:center center;   /* 핀치줌이 항상 정확히 중앙 기준으로 확대/축소되도록 명시 */
+}
+.lb-close{
+  position:absolute;top:calc(16px + env(safe-area-inset-top));right:16px;z-index:2;
+  width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,.2);color:#fff;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+/* 오시는 길 이전/다음 버튼과 동일 규격 (라이트박스 다크 배경용 색상만 조정) */
+.lb-nav{
+  display:flex;justify-content:space-between;flex:none;
+  width:94vw;max-width:94vw;    /* .lb-stage와 같은 폭 — 버튼이 사진 양 끝에 맞춰 정렬 */
+  margin:0 auto calc(14px + env(safe-area-inset-bottom));
+}
+.lb-nav button{
+  width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,.2);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .2s;
+}
+.lb-nav button svg{width:32px;height:32px;fill:currentColor;}
+/* 하이라이트 카드 페이지 인디케이터와 같은 애플식 알약 점 스타일 */
+.lb-dots{
+  display:flex;gap:6px;align-items:center;justify-content:center;
+  min-width:44px;
+}
+.lb-dots .dot{
+  width:5px;height:5px;border-radius:99px;
+  background:rgba(255,255,255,.4);
+  transition:all .3s ease;
+}
+.lb-dots .dot.active{width:14px;background:#fff;}
+
+/* ---------- 4. 오시는 길 ---------- */
+#location{background:var(--bg);padding-bottom:80px;}
+.loc-cards{
+  display:flex;gap:20px;
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;  /* 세로 스크롤 차단 */
+  padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 8px;
+  scrollbar-width:none;
+}
+.loc-cards::-webkit-scrollbar{display:none;}
+/* 하이라이트 카드와 동일 규격 */
+.loc-card{
+  flex:0 0 86%;max-width:400px;aspect-ratio:344/486;
+  background:var(--gray);border-radius:28px;
+  padding:40px 30px;text-align:left;
+  scroll-snap-align:center;
+  display:flex;flex-direction:column;justify-content:flex-start;
+  overflow:hidden;  /* 좁은 화면에서 콘텐츠가 넘쳐도 카드 밖으로 삐져나오지 않도록 안전장치 */
+}
+.loc-card h4{font-size:15px;font-weight:500;color:var(--ink2);margin-bottom:14px;}
+.loc-card p{font-size:17px;font-weight:700;color:var(--ink);line-height:1.65;letter-spacing:-.01em;}
+/* 교통 안내 상세 타이포 */
+.loc-card .stop{font-size:16px;font-weight:700;}
+.loc-card .info{margin-top:8px;font-size:14px;font-weight:500;color:var(--ink2);line-height:1.8;}
+.loc-card .info b{color:var(--ink);font-weight:700;}
+.loc-card .note{margin-top:16px;font-size:13px;font-weight:500;color:var(--ink2);}
+.loc-card .note::before{content:'※ ';}
+/* 추천 경로 강조 (봉은사역): 본문만 진하게 */
+.stop-rec .info{color:var(--ink);}
+.rec-badge{
+  display:inline-block;margin-left:6px;padding:3px 10px;border-radius:99px;
+  background:var(--primary);color:#fff;font-size:11px;font-weight:700;vertical-align:2px;
+}
+/* 지하철 노선 뱃지 (실제 노선 색) */
+.line{
+  display:inline-flex;width:20px;height:20px;margin-right:8px;
+  align-items:center;justify-content:center;vertical-align:-3px;
+  border-radius:50%;color:#fff;font-size:12px;font-weight:700;
+}
+.l9{background:#BDB092;}
+.l2{background:#00A84D;}
+.l7{background:#747F00;}
+.gate{
+  display:inline-block;margin-left:6px;padding:3px 10px;border-radius:99px;
+  background:var(--primary);color:#fff;font-size:12px;font-weight:700;vertical-align:2px;
+}
+/* 버스 정류장 안내 (서울 버스 색상) */
+.bus-stop{margin-top:22px;}
+.bus-stop:first-of-type{margin-top:0;}
+.stop-no{font-size:12px;font-weight:600;color:var(--ink2);margin-left:4px;letter-spacing:.02em;}
+.loc-card .bus-lines{
+  display:flex;gap:9px;align-items:flex-start;margin-top:7px;
+  font-size:13px;font-weight:600;line-height:1.65;letter-spacing:.01em;
+}
+.bt{
+  flex:none;min-width:42px;text-align:center;padding:2px 8px;border-radius:99px;margin-top:1px;
+  color:#fff;font-size:11px;font-weight:700;
+}
+.bt.trunk{background:#3D5BAB;}    /* 간선 파랑 */
+.bt.branch{background:#53B332;}   /* 지선 초록 */
+.bt.village{background:#8BC53F;}  /* 마을 연두 */
+.bt.express{background:#E60012;}  /* 직행 빨강 */
+.bt.limo{background:#8B6A3F;}     /* 공항 리무진 황토 */
+.loc-card .venue-name{font-size:17px;font-weight:700;letter-spacing:-.01em;}
+.loc-card .venue-addr{margin-top:8px;font-size:15px;font-weight:500;color:var(--ink2);line-height:1.7;}
+.map-wrap{border-radius:18px;overflow:hidden;}
+.map-wrap img{width:100%;}
+/* 네이버 지도 (API 키 입력 시 약도 이미지 대신 표시) */
+#naver-map{display:none;width:100%;height:200px;}
+/* 지도 커스텀 마커: 알약 라벨 + 아래 꼬리 */
+.nmarker{
+  position:absolute;transform:translate(-50%,calc(-100% - 8px));  /* 좌표 위에 중앙 정렬 */
+  padding:8px 16px;border-radius:99px;white-space:nowrap;
+  background:var(--primary);color:#fff;
+  font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:-.01em;
+  box-shadow:0 4px 14px rgba(0,0,0,.28);
+  cursor:pointer;
+}
+.nmarker i{
+  position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+  width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
+  border-top:7px solid var(--primary);
+}
+.map-ph{padding:70px 20px;text-align:center;color:var(--ink2);font-size:13px;background:var(--gray);border-radius:18px;}
+.map-links{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+.map-links a{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 0;font-size:14px;font-weight:600;text-decoration:none;
+  border-radius:99px;background:#fff;color:var(--ink);
+}
+.map-links a img{width:16px;height:16px;object-fit:contain;border-radius:3px;}  /* 비율 유지 */
+/* 이전/다음 원형 버튼 */
+.loc-nav{
+  display:flex;gap:14px;justify-content:flex-end;
+  max-width:980px;margin:20px auto 0;padding:0 24px;
+}
+.loc-nav button{
+  width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
+  background:#E8E8ED;color:#333;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .2s;
+}
+.loc-nav button svg{width:32px;height:32px;fill:currentColor;}
+.loc-nav button:disabled{opacity:.4;cursor:default;}
+
+/* ---------- 5. 마음 전하실 곳 ---------- */
+#account{padding-bottom:96px;background:var(--bg);}
+.acc-group{
+  max-width:640px;margin:0 auto 14px;background:var(--gray);
+  border-radius:20px;overflow:hidden;
+}
+.acc-toggle{
+  width:100%;padding:18px 22px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:none;border:none;cursor:pointer;
+  font-family:var(--sans);font-size:15px;font-weight:700;color:var(--ink);
+}
+.acc-toggle .arrow{transition:transform .3s;color:var(--ink2);font-size:12px;}
+.acc-group.open .arrow{transform:rotate(180deg);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.acc-group.open .acc-body{max-height:400px;}
+.acc-row{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:14px 22px;border-top:1px solid rgba(0,0,0,.06);
+}
+.acc-row .who{font-size:12px;color:var(--ink2);min-width:44px;}
+.acc-row .num{flex:1;font-size:14px;line-height:1.5;}
+.copy-btn{
+  border:none;background:#fff;color:var(--primary);
+  font-size:12px;font-weight:600;padding:7px 14px;border-radius:99px;cursor:pointer;
+}
+.copy-btn:active{background:var(--primary);color:#fff;}
+
+/* ---------- 6. RSVP (신랑/신부 프로필 비교, 애플 스펙표 스타일) ---------- */
+#rsvp{background:var(--gray);padding-bottom:40px;text-align:left;}
+/* 상단 고정 헤더: 사진 + 이름 */
+.rsvp-head{
+  position:sticky;top:0;z-index:30;
+  background:rgba(245,245,247,.9);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  padding:12px 24px 10px;
+}
+.rsvp-head-inner{display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:640px;margin:0 auto;}
+.rh-person{display:flex;flex-direction:column;align-items:center;}
+.rh-person img{height:150px;object-fit:contain;}   /* 고정 헤더 사진 크기 */
+.rh-person p{margin-top:10px;font-size:22px;font-weight:800;letter-spacing:-.01em;}
+.rh-person .en{margin-top:2px;font-size:13px;font-weight:500;color:var(--ink2);letter-spacing:.05em;}
+/* 프로필 비교 그리드 */
+.profile-grid{max-width:640px;margin:0 auto;padding:8px 24px 28px;}
+.prof-row{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding-top:44px;}
+.prof-cell{display:flex;flex-direction:column;align-items:center;text-align:center;}
+.prof-cell img{width:44px;height:44px;object-fit:contain;margin-bottom:14px;}
+.prof-cell p{font-size:15px;font-weight:600;line-height:1.8;}
+/* 하단 고정 버튼 */
+.rsvp-cta{
+  position:sticky;bottom:0;z-index:30;
+  padding:16px 24px calc(18px + env(safe-area-inset-bottom));
+  background:linear-gradient(to top, var(--gray) 55%, rgba(245,245,247,0));
+  text-align:center;
+}
+.rsvp-open-btn{
+  display:inline-block;width:100%;max-width:380px;
+  padding:15px 20px;border:none;border-radius:99px;
+  background:var(--primary);color:#fff;
+  font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;
+  box-shadow:0 6px 20px rgba(48,111,220,.3);
+}
+/* 바텀시트 */
+#sheet-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:opacity .3s;z-index:50;
+}
+#sheet-backdrop.show{opacity:1;pointer-events:auto;}
+#sheet{
+  position:fixed;left:50%;bottom:0;transform:translate(-50%,105%);
+  width:100%;max-width:520px;z-index:51;
+  background:#fff;
+  border-radius:24px 24px 0 0;
+  padding:14px 24px calc(28px + env(safe-area-inset-bottom));
+  transition:transform .38s cubic-bezier(.32,.72,.25,1);
+  box-shadow:0 -8px 32px rgba(0,0,0,.18);
+}
+#sheet.show{transform:translate(-50%,0);}
+.sheet-handle{width:40px;height:4px;border-radius:99px;background:rgba(0,0,0,.15);margin:0 auto 18px;}
+#sheet h3{font-size:19px;font-weight:800;text-align:center;margin-bottom:6px;}
+#sheet .sub{text-align:center;font-size:13px;color:var(--ink2);margin-bottom:22px;}
+#rsvp-name,#rsvp-phone{
+  width:100%;padding:13px 14px;font-size:15px;font-family:var(--sans);
+  border:none;border-radius:12px;background:var(--gray);color:var(--ink);
+  margin:4px 0 12px;
+}
+#rsvp-name:focus,#rsvp-phone:focus{outline:2px solid var(--primary);}
+.radio-row{display:flex;gap:26px;margin:8px 2px 20px;}
+.radio-row label{
+  display:flex;align-items:center;gap:8px;
+  font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;
+}
+.radio-row input[type="radio"]{
+  width:18px;height:18px;accent-color:var(--primary);cursor:pointer;
+}
+.count-box input{
+  width:54px;padding:8px 6px;margin-left:2px;
+  border:none;border-radius:10px;background:var(--gray);
+  font-size:15px;font-family:var(--sans);text-align:center;color:var(--ink);
+}
+.count-box input:focus{outline:2px solid var(--primary);}
+#rsvp-submit{
+  width:100%;padding:15px;border:none;border-radius:99px;
+  background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);
+}
+#rsvp-submit:disabled{opacity:.5;cursor:default;}
+#rsvp-msg{text-align:center;font-size:13px;margin-top:12px;min-height:18px;color:var(--ink2);}
+#rsvp-msg.err{color:#D93025;}
+.sheet-close{
+  position:absolute;top:14px;right:16px;border:none;background:none;
+  font-size:20px;color:var(--ink2);cursor:pointer;padding:6px;
+}
+
+/* ---------- 푸터 ---------- */
+
+/* 토스트 */
+#toast{
+  position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);
+  background:var(--ink);color:#fff;font-size:13px;
+  padding:11px 22px;border-radius:99px;opacity:0;transition:all .3s;z-index:60;
+  pointer-events:none;
+}
+#toast.show{opacity:1;transform:translate(-50%,0);}

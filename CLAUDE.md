@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A mobile-first Korean wedding invitation website (형진 ♥ 가나, 2026-10-25) styled after Apple product pages. It is a **single self-contained static page** — all CSS and JS live inline in `index.html`. There is no build step, no package.json at the root, no linter, no tests.
+A mobile-first Korean wedding invitation website (형진 ♥ 가나, 2026-10-25) styled after Apple product pages. It is a **static site with no build step**: `index.html` (markup only) references `style.css` and `script.js` via plain `<link>`/`<script src>` tags — no bundler, no package.json at the root, no linter, no tests.
 
 - Preview locally: `python3 -m http.server` (or any static server) from the repo root, then open `http://localhost:8000`. Opening `index.html` directly via `file://` also works but clipboard copy falls back to `execCommand`.
 - After adding/replacing photos: `python3 sync_images.py` — compresses oversized images in place (via macOS `sips`) and rewrites the gallery `<img>` lists in index.html from the actual files in `images/gallery/` (`N-main.*` / `N-subM.*` naming). `--check` reports without modifying. Full-size originals live in `../images_originals_backup/`.
@@ -12,14 +12,13 @@ A mobile-first Korean wedding invitation website (형진 ♥ 가나, 2026-10-25)
 - Deployed via GitHub Pages (expected origin: `https://kka-na.github.io`).
 - `index_v1.html` is a frozen backup of design version 1 — do not edit it; new work goes in `index.html`.
 
-## Architecture of index.html
+## Architecture
 
-Everything is in one file, in this order:
+Three files, no build step:
 
-1. `<style>` block — theme colors in `:root` variables (`--primary`, `--secondary`, `--third`, `--fourth`, `--fifth` color-code the five gallery/story sections). Self-hosted KoPubDotum woff2 fonts from `fonts/`, Pretendard from CDN as fallback.
-2. Markup sections: `#hero` (full-screen photo + veil-wipe animation) → `#highlights` (horizontal snap-scroll cards: invitation/date/venue) → five `.dress` gallery sections (scroll-pinned: main photo blurs/zooms as you scroll, sub-photo cards float up; each tells one story chapter) → `#location` → `#account` (accordion bank accounts) → `#rsvp` (couple profile comparison grid + bottom-sheet form).
-3. GSAP + ScrollTrigger loaded from CDN (`<script>` tags just before the main inline script) power the `.dress` section pin/blur effect — CSS `position:sticky` was tried first but has a known cross-browser bug where reversing scroll direction right at the boundary between stacked sticky sections causes a visible jump to the adjacent section; ScrollTrigger computes pin/unpin itself and avoids it. If GSAP fails to load (or `prefers-reduced-motion`), the sections degrade to plain unpinned/unblurred blocks rather than erroring.
-4. `<script>` block — starts with a **`CONFIG` object which is the single place for all content settings** (venue, map URLs, parking/transit text, bank accounts, RSVP API URL). Values marked `[미정]` are placeholders awaiting real data. Config values are injected into the DOM by ID at load. The rest is vanilla-JS IIFEs, one per feature (hero scroll blur, dress-section ScrollTrigger pin, card pagers, lightbox, accordion, bottom sheet, fade-in observer).
+- `index.html` — markup only: `#hero` (full-screen photo + veil-wipe animation) → `#highlights` (horizontal snap-scroll cards: invitation/date/venue) → five `.dress` gallery sections (scroll-pinned: main photo blurs/zooms as you scroll, sub-photo cards float up; each tells one story chapter) → `#location` → `#account` (accordion bank accounts) → `#rsvp` (couple profile comparison grid + bottom-sheet form). Links `style.css` in `<head>` and loads GSAP + ScrollTrigger from CDN followed by `script.js` at the end of `<body>` (order matters — `script.js` expects `gsap`/`ScrollTrigger` to already be defined).
+- `style.css` — theme colors in `:root` variables (`--primary`, `--secondary`, `--third`, `--fourth`, `--fifth` color-code the five gallery/story sections). Self-hosted KoPubDotum woff2 fonts from `fonts/`, Pretendard from CDN as fallback.
+- `script.js` — starts with a **`CONFIG` object which is the single place for all content settings** (venue, map URLs, parking/transit text, bank accounts, RSVP API URL). Values marked `[미정]` are placeholders awaiting real data. Config values are injected into the DOM by ID at load. The rest is vanilla-JS IIFEs, one per feature (hero scroll blur, dress-section ScrollTrigger pin, card pagers, lightbox, accordion, bottom sheet, fade-in observer). GSAP + ScrollTrigger (loaded from CDN in `index.html`, just before this file) power the `.dress` section pin/blur effect — CSS `position:sticky` was tried first but has a known cross-browser bug where reversing scroll direction right at the boundary between stacked sticky sections causes a visible jump to the adjacent section; ScrollTrigger computes pin/unpin itself and avoids it. If GSAP fails to load (or `prefers-reduced-motion`), the sections degrade to plain unpinned/unblurred blocks rather than erroring.
 
 A Korean edit guide comment near the top of `<head>` maps common changes to their locations — keep it up to date if you restructure.
 
