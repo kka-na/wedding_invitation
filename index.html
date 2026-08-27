@@ -1263,35 +1263,19 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   // 뒤 섹션의 시작/끝 위치 계산에 반영된다 (안 하면 카드가 갑자기 사라졌다 나타남)
   ScrollTrigger.refresh();
 
-  // 모바일 브라우저는 스크롤 중 주소창이 접히면서 실제 화면이 커지는데, 페이지
-  // 로드 시점(주소창이 펼쳐진 더 작은 화면)에 계산해 둔 고정 구간 위치가 그대로
-  // 남아있으면 처음 만나는 섹션(막 고정이 걸리는 순간)과 나중에 다시 보는 섹션이
-  // 다르게 보인다 (위로 착 붙으면서 아래 여백이 남는 원인). 주소창 접힘/펼침은
-  // 일반 window resize로 안 잡히는 경우가 있어 visualViewport로 감지.
-  //
-  // 단, 주소창이 다시 나타나 뷰포트가 "작아지는" 변화까지 매번 리프레시하면
-  // (갤러리 진입→위로 스크롤→다시 아래로 스크롤 시 주소창이 접힘/펼침을 반복)
-  // 핀이 걸린 채 스크롤 중에 구간이 재계산되어 화면이 튕기는 버그가 생긴다.
-  // 그래서 가로폭이 실제로 바뀌는 경우(회전 등)나, 지금까지 관찰한 것보다
-  // 뷰포트가 더 커지는 경우(주소창이 새롭게 접히는 상황)에만 리프레시한다.
+  // 예전엔 여기서 주소창 접힘/펼침(visualViewport resize)마다 ScrollTrigger.refresh()를
+  // 걸었는데, 핀이 걸린 채 스크롤 중에 재계산이 끼어들면 구간 전체 위치가 바뀌면서
+  // 화면이 엉뚱한 곳(첫 화면 등)으로 튀는 훨씬 심각한 버그를 만들었다. 위의
+  // ignoreMobileResize 설정이 주소창 토글로 인한 리사이즈는 이미 무시해주므로,
+  // 실제 기기 회전처럼 가로폭이 바뀌는 경우에만 다시 계산한다.
   let resizeTimer;
-  let vvW = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-  let vvMaxH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  const onViewportChange = () => {
-    const w = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    const widthChanged = w !== vvW;
-    const grew = h > vvMaxH;
-    if (!widthChanged && !grew) return;   // 주소창이 다시 나타나 작아진 경우는 무시
-    vvW = w;
-    vvMaxH = Math.max(vvMaxH, h);
+  let vvW = window.innerWidth;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === vvW) return;   // 세로 크기만 바뀌는 건 주소창 토글 — 무시
+    vvW = window.innerWidth;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 150);
-  };
-  window.addEventListener('resize', onViewportChange);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', onViewportChange);
-  }
+  });
 })();
 
 /* ---------- 하이라이트 카드 인디케이터 ---------- */
