@@ -1085,6 +1085,11 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
   gsap.registerPlugin(ScrollTrigger);
+  // 안드로이드 크롬은 스크롤 방향에 따라 주소창이 접혔다 펼쳐지며 뷰포트 높이가
+  // 수시로 바뀌는데, 이때마다 자동으로 리프레시하면 핀 구간 재계산이 스크롤 중에
+  // 끼어들어 튕기는 원인이 된다. 아래 커스텀 리스너로 리프레시 시점을 직접
+  // 제어하므로 GSAP 자체의 모바일 리사이즈 자동 리프레시는 꺼둔다.
+  ScrollTrigger.config({ ignoreMobileResize: true });
   const MAX_BLUR = 10;
   document.querySelectorAll('.dress').forEach(sec => {
     const sticky = sec.querySelector('.dress-sticky');
@@ -1120,8 +1125,23 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   // 남아있으면 처음 만나는 섹션(막 고정이 걸리는 순간)과 나중에 다시 보는 섹션이
   // 다르게 보인다 (위로 착 붙으면서 아래 여백이 남는 원인). 주소창 접힘/펼침은
   // 일반 window resize로 안 잡히는 경우가 있어 visualViewport로 감지.
+  //
+  // 단, 주소창이 다시 나타나 뷰포트가 "작아지는" 변화까지 매번 리프레시하면
+  // (갤러리 진입→위로 스크롤→다시 아래로 스크롤 시 주소창이 접힘/펼침을 반복)
+  // 핀이 걸린 채 스크롤 중에 구간이 재계산되어 화면이 튕기는 버그가 생긴다.
+  // 그래서 가로폭이 실제로 바뀌는 경우(회전 등)나, 지금까지 관찰한 것보다
+  // 뷰포트가 더 커지는 경우(주소창이 새롭게 접히는 상황)에만 리프레시한다.
   let resizeTimer;
+  let vvW = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  let vvMaxH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   const onViewportChange = () => {
+    const w = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const widthChanged = w !== vvW;
+    const grew = h > vvMaxH;
+    if (!widthChanged && !grew) return;   // 주소창이 다시 나타나 작아진 경우는 무시
+    vvW = w;
+    vvMaxH = Math.max(vvMaxH, h);
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 150);
   };
