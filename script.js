@@ -247,13 +247,18 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
       },
       onUpdate(self) {
         const p = self.progress;   // 0→1, 고정 구간을 지나는 동안
-        const bp = Math.min(1, Math.max(0, (p - 0.15) / 0.85));   // 블러는 15% 지점부터 시작
+        // 첫 번째 갤러리는 화면에 막 고정된 직후 바로 블러가 시작되면 "붙자마자
+        // 뭔가 바뀐다"는 느낌이 유독 두드러져서, 블러 시작 지점만 더 뒤로 미룸
+        // (다른 4개는 기존 15%/25% 유지)
+        const blurStart = i === 0 ? 0.35 : 0.15;
+        const cardStart = i === 0 ? 0.45 : 0.25;
+        const bp = Math.min(1, Math.max(0, (p - blurStart) / (1 - blurStart)));
         if (img) {
           img.style.filter = 'blur(' + (bp * MAX_BLUR).toFixed(1) + 'px)';
           img.style.transform = 'scale(' + (1 + bp * 0.06).toFixed(3) + ')';
         }
-        if (cards) {   // 서브 카드: 블러가 진행되면 아래에서 떠오름 (p 0.25 지점부터, 투명도 없이 바로 사진으로 등장)
-          const q = Math.min(1, Math.max(0, (p - 0.25) / 0.6));
+        if (cards) {   // 서브 카드: 블러가 진행되면 아래에서 떠오름 (투명도 없이 바로 사진으로 등장)
+          const q = Math.min(1, Math.max(0, (p - cardStart) / (1 - cardStart - 0.15)));
           cards.style.opacity = q > 0 ? 1 : 0;
           cards.style.transform = 'translateY(' + ((1 - q) * 48).toFixed(1) + 'px)';
         }
