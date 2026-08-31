@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## What this is
+## What this is s
 
 A mobile-first Korean wedding invitation website (형진 ♥ 가나, 2026-10-25) styled after Apple product pages. It is a **static site with no build step**: `index.html` (markup only) references `style.css` and `script.js` via plain `<link>`/`<script src>` tags — no bundler, no package.json at the root, no linter, no tests.
 
