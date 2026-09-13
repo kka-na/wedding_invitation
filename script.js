@@ -66,7 +66,8 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   const btn = document.getElementById('hero-calendar-btn');
   const start = new Date(CONFIG.WEDDING_DATE);
   const end = new Date(start.getTime() + 60 * 60 * 1000);   // 예식 1시간으로 가정
-  const fmt = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const fmtUTC = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const fmtLocal = d => { const p = n => String(n).padStart(2,'0'); return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'T'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds()); };
   const title = '형진 ♥ 가나 결혼식';
   const location = CONFIG.VENUE_NAME + ' (' + CONFIG.VENUE_ADDR + ')';
   const details = '형진과 가나의 결혼식에 초대합니다.';
@@ -76,9 +77,9 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
       'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Wedding//KR',
       'BEGIN:VEVENT',
       'UID:' + Date.now() + '@wedding',
-      'DTSTAMP:' + fmt(new Date()),
-      'DTSTART:' + fmt(start),
-      'DTEND:' + fmt(end),
+      'DTSTAMP:' + fmtUTC(new Date()),
+      'DTSTART;TZID=Asia/Seoul:' + fmtLocal(start),
+      'DTEND;TZID=Asia/Seoul:' + fmtLocal(end),
       'SUMMARY:' + title,
       'LOCATION:' + location,
       'DESCRIPTION:' + details,
@@ -88,7 +89,7 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   function buildGoogleUrl() {
     const params = new URLSearchParams({
       action: 'TEMPLATE', text: title,
-      dates: fmt(start) + '/' + fmt(end),
+      dates: fmtUTC(start) + '/' + fmtUTC(end),
       location, details,
     });
     return 'https://calendar.google.com/calendar/render?' + params.toString();
@@ -373,12 +374,12 @@ document.addEventListener('dragstart', e => {
    (body를 position:fixed로 옮기는 방식은 스크롤 위치가 살짝 튀는 부작용이 있어서
    그냥 스크롤 자체를 막는 overflow:hidden만 사용 — 위치를 전혀 건드리지 않음) */
 function lockBodyScroll() {
-  document.documentElement.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflowY = 'hidden';
+  document.body.style.overflowY = 'hidden';
 }
 function unlockBodyScroll() {
-  document.documentElement.style.overflow = '';
-  document.body.style.overflow = '';
+  document.documentElement.style.overflowY = '';
+  document.body.style.overflowY = '';
 }
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('show');
@@ -643,7 +644,9 @@ function copyText(text) {
 function fallbackCopy(text, cb) {
   const ta = document.createElement('textarea');
   ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-  document.body.appendChild(ta); ta.select();
+  ta.readOnly = true;
+  document.body.appendChild(ta);
+  ta.setSelectionRange(0, 99999); ta.select();
   try { document.execCommand('copy'); cb(); } catch (e) { toast('복사에 실패했습니다'); }
   document.body.removeChild(ta);
 }
@@ -668,10 +671,12 @@ document.querySelectorAll('.fade').forEach(el => io.observe(el));
 function openSheet() {
   document.getElementById('sheet-backdrop').classList.add('show');
   document.getElementById('sheet').classList.add('show');
+  lockBodyScroll();
 }
 function closeSheet() {
   document.getElementById('sheet-backdrop').classList.remove('show');
   document.getElementById('sheet').classList.remove('show');
+  unlockBodyScroll();
 }
 
 /* 구글 스프레드시트(Apps Script 웹앱)로 전송.

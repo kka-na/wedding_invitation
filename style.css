@@ -77,7 +77,7 @@ section{position:relative;}
 }
 
 /* ---------- 1. 히어로 (전체 화면) ---------- */
-#hero{height:100svh;position:relative;overflow:hidden;text-align:center;}
+#hero{height:100vh;height:100svh;position:relative;overflow:hidden;text-align:center;}
 #hero > img{
   width:100%;height:100%;object-fit:cover;
 }
@@ -152,7 +152,7 @@ section{position:relative;}
 .hl-cards{
   display:flex;gap:20px;
   overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;  /* 세로 스크롤 차단 */
-  padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 28px;
+  padding:8px 24px 28px;padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 28px;
   scrollbar-width:none;
 }
 .hl-cards::-webkit-scrollbar{display:none;}
@@ -228,7 +228,7 @@ section{position:relative;}
   /* dvh로 해봤더니 스크롤 중 핀(고정) 박스 크기가 실시간으로 바뀌면서 스페이서와
      안 맞아 빈 막처럼 보이는 부작용이 실제로 발생해 되돌림. 핀 걸린 요소는
      lvh(주소창 접힌 기준 고정값)로 둬야 안전하다. */
-  position:relative;height:100lvh;overflow:hidden;
+  position:relative;height:100vh;height:100lvh;overflow:hidden;
 }
 .dress-sticky img{
   width:100%;height:100%;object-fit:cover;
@@ -271,7 +271,7 @@ section{position:relative;}
   position:absolute;left:0;right:0;bottom:9svh;z-index:3;  /* 아래에서 띄우는 정도 (플로팅 바로가기 버튼과 안 겹치게) */
   display:flex;align-items:flex-start;gap:14px;   /* stretch(기본값)면 auto-height 컨테이너와 aspect-ratio가 서로 맞물려 카드가 flex-basis보다 훨씬 커짐 */
   overflow-x:auto;scroll-snap-type:x mandatory;
-  padding:20px max(24px, calc((100vw - 980px)/2 + 24px)) calc(28px + env(safe-area-inset-bottom));
+  padding:20px 24px calc(28px + env(safe-area-inset-bottom));padding:20px max(24px, calc((100vw - 980px)/2 + 24px)) calc(28px + env(safe-area-inset-bottom));
   scrollbar-width:none;
   will-change:opacity,transform;
   opacity:0;transform:translateY(48px);   /* 고정(pin) 시작 전 기본 상태 — JS 최초 갱신 전 잠깐 다 보였다 사라지는 것 방지 */
@@ -355,7 +355,7 @@ section{position:relative;}
 .loc-cards{
   display:flex;gap:20px;
   overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;  /* 세로 스크롤 차단 */
-  padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 8px;
+  padding:8px 24px 8px;padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 8px;
   scrollbar-width:none;
 }
 .loc-cards::-webkit-scrollbar{display:none;}
@@ -536,7 +536,7 @@ section{position:relative;}
 #sheet h3{font-size:19px;font-weight:800;text-align:center;margin-bottom:6px;}
 #sheet .sub{text-align:center;font-size:13px;color:var(--ink2);margin-bottom:22px;}
 #rsvp-name,#rsvp-phone{
-  width:100%;padding:13px 14px;font-size:15px;font-family:var(--sans);
+  width:100%;padding:13px 14px;font-size:16px;font-family:var(--sans);
   border:none;border-radius:12px;background:var(--gray);color:var(--ink);
   margin:4px 0 12px;
 }
@@ -552,7 +552,7 @@ section{position:relative;}
 .count-box input{
   width:54px;padding:8px 6px;margin-left:2px;
   border:none;border-radius:10px;background:var(--gray);
-  font-size:15px;font-family:var(--sans);text-align:center;color:var(--ink);
+  font-size:16px;font-family:var(--sans);text-align:center;color:var(--ink);
 }
 .count-box input:focus{outline:2px solid var(--primary);}
 #rsvp-submit{
