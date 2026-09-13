@@ -210,10 +210,6 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
       start: 'top top',
       end: '+=' + pinDuration,   // 고정 픽셀: 주소창과 무관하게 항상 같은 구간
       pin: sticky,
-      pinType: 'transform',      // position:fixed 대신 transform으로 고정 — iOS에서 fixed 사용 시
-                                 // getBoundingClientRect()가 visual viewport 기준으로 top을 반환해
-                                 // safe-area-inset-top(노치 높이)만큼 아래로 밀려 상하가 잘려 보이는
-                                 // 현상을 피한다. transform은 문서 흐름 내 좌표를 그대로 쓰므로 안전.
       scrub: 0.6,
       // 인디케이터는 endTrigger로 별도 구간을 잡는 대신, 5개 섹션 각각의 활성 상태를
       // 그대로 따라가게 한다 (endTrigger 기반 트리거는 핀 스페이싱 계산 순서 때문에
