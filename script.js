@@ -184,14 +184,9 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   const MAX_BLUR = 10;
   const dressSections = Array.from(document.querySelectorAll('.dress'));
 
-  // 주소창 유무와 무관한 고정 높이: screen.availHeight는 브라우저 주소창과 완전히 무관한
-  // 기기 화면 크기라서 어떤 타이밍에 측정해도 항상 같은 값을 반환한다.
-  // 실제 뷰포트보다 약간 크지만(기기별 50~90px), 핀 구간이 너무 일찍 끝나는 것보다 낫다.
-  const stableH = window.screen.availHeight || window.innerHeight;
-  dressSections.forEach(sec => {
-    const sticky = sec.querySelector('.dress-sticky');
-    if (sticky) sticky.style.height = stableH + 'px';
-  });
+  // 핀 지속 시간만 screen.availHeight로 고정 — 요소 높이는 CSS 100lvh 그대로 둬서
+  // 뷰포트 크기 불일치로 인한 스크롤 역방향 튀는 현상을 방지한다.
+  const pinDuration = Math.round((window.screen.availHeight || window.innerHeight) * 0.9);
 
   // 갤러리 진행 인디케이터: 지금 몇 번째 이야기인지 보여줘서 뒤에 더 있다는 걸 알린다
   const pager = document.getElementById('dress-pager');
@@ -213,8 +208,12 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
     ScrollTrigger.create({
       trigger: sec,
       start: 'top top',
-      end: '+=' + Math.round(stableH * 0.9),   // 고정 픽셀: 주소창과 무관하게 항상 같은 구간
+      end: '+=' + pinDuration,   // 고정 픽셀: 주소창과 무관하게 항상 같은 구간
       pin: sticky,
+      pinType: 'transform',      // position:fixed 대신 transform으로 고정 — iOS에서 fixed 사용 시
+                                 // getBoundingClientRect()가 visual viewport 기준으로 top을 반환해
+                                 // safe-area-inset-top(노치 높이)만큼 아래로 밀려 상하가 잘려 보이는
+                                 // 현상을 피한다. transform은 문서 흐름 내 좌표를 그대로 쓰므로 안전.
       scrub: 0.6,
       // 인디케이터는 endTrigger로 별도 구간을 잡는 대신, 5개 섹션 각각의 활성 상태를
       // 그대로 따라가게 한다 (endTrigger 기반 트리거는 핀 스페이싱 계산 순서 때문에
