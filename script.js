@@ -190,6 +190,15 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   const MAX_BLUR = 10;
   const dressSections = Array.from(document.querySelectorAll('.dress'));
 
+  // 주소창 유무와 무관한 고정 높이: CSS 100lvh로 브라우저가 계산한 값을 한 번만 읽어 픽셀로 고정.
+  // end: '+=90%' 같은 viewport 비율 대신 이 값을 쓰면 주소창이 접혔다 펼쳐져도 핀 구간이 안 변한다.
+  const firstSticky = dressSections[0]?.querySelector('.dress-sticky');
+  const stableH = (firstSticky?.offsetHeight) || window.screen.availHeight || window.innerHeight;
+  dressSections.forEach(sec => {
+    const sticky = sec.querySelector('.dress-sticky');
+    if (sticky) sticky.style.height = stableH + 'px';
+  });
+
   // 갤러리 진행 인디케이터: 지금 몇 번째 이야기인지 보여줘서 뒤에 더 있다는 걸 알린다
   const pager = document.getElementById('dress-pager');
   const dotColors = ['var(--primary)', 'var(--secondary)', 'var(--third)', 'var(--fourth)', 'var(--fifth)'];
@@ -210,7 +219,7 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
     ScrollTrigger.create({
       trigger: sec,
       start: 'top top',
-      end: '+=90%',           // 뷰포트 높이의 90%만큼 스크롤하는 동안 고정 (기존 115%보다 단축)
+      end: '+=' + Math.round(stableH * 0.9),   // 고정 픽셀: 주소창과 무관하게 항상 같은 구간
       pin: sticky,
       scrub: 0.6,
       // 인디케이터는 endTrigger로 별도 구간을 잡는 대신, 5개 섹션 각각의 활성 상태를
@@ -244,35 +253,11 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   // 뒤 섹션의 시작/끝 위치 계산에 반영된다 (안 하면 카드가 갑자기 사라졌다 나타남)
   ScrollTrigger.refresh();
 
-  // 새로고침한 시점에 주소창이 펼쳐져 있으면(화면이 작음) 방금 그 refresh()가
-  // 작은 화면 기준으로 핀 구간 길이를 계산해버려서, 이후 주소창이 접혀 화면이
-  // 커져도 잘못된(너무 짧은) 값으로 고정돼버리는 문제가 있었다. 주소창이 처음
-  // 한 번 움직이는 시점(보통 첫 스크롤 직후)에 딱 한 번만 안전하게 다시
-  // 계산해서 바로잡고, 그 이후로는 더 이상 개입하지 않는다 — 반복 재계산은
-  // 스크롤 중 화면이 엉뚱한 곳으로 튀는 훨씬 심각한 버그의 원인이었다 (아래 참고).
-  let settled = false;
-  function trySettle() {
-    if (settled) return;
-    const midPin = ScrollTrigger.getAll().some(t => t.pin && t.isActive);
-    if (midPin) { setTimeout(trySettle, 200); return; }   // 핀 걸린 도중이면 잠깐 미뤘다 재시도
-    settled = true;
-    window.removeEventListener('resize', onFirstViewportChange);
-    if (window.visualViewport) window.visualViewport.removeEventListener('resize', onFirstViewportChange);
-    ScrollTrigger.refresh();
-  }
-  function onFirstViewportChange() { setTimeout(trySettle, 300); }   // 주소창 애니메이션이 끝날 시간을 줌
-  window.addEventListener('resize', onFirstViewportChange);
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', onFirstViewportChange);
-
-  // 예전엔 여기서 주소창 접힘/펼침(visualViewport resize)마다 ScrollTrigger.refresh()를
-  // 걸었는데, 핀이 걸린 채 스크롤 중에 재계산이 끼어들면 구간 전체 위치가 바뀌면서
-  // 화면이 엉뚱한 곳(첫 화면 등)으로 튀는 훨씬 심각한 버그를 만들었다. 위의
-  // ignoreMobileResize 설정이 주소창 토글로 인한 리사이즈는 이미 무시해주므로,
-  // 실제 기기 회전처럼 가로폭이 바뀌는 경우에만 다시 계산한다.
+  // 기기 회전처럼 가로폭이 실제로 바뀔 때만 재계산 (주소창 접힘/펼침은 무시)
   let resizeTimer;
   let vvW = window.innerWidth;
   window.addEventListener('resize', () => {
-    if (window.innerWidth === vvW) return;   // 세로 크기만 바뀌는 건 주소창 토글 — 무시
+    if (window.innerWidth === vvW) return;
     vvW = window.innerWidth;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 150);

@@ -152,7 +152,8 @@ section{position:relative;}
 #highlights{background:var(--bg);}
 .hl-cards{
   display:flex;gap:20px;
-  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;  /* 세로 스크롤 차단 */
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+  scroll-padding-left:24px;
   padding:8px 24px 28px;padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 28px;
   scrollbar-width:none;
 }
@@ -169,10 +170,10 @@ section{position:relative;}
 }
 .hl-pager .dot.active{width:24px;opacity:1;}
 .hl-card{
-  flex:0 0 86%;max-width:400px;aspect-ratio:344/486;  /* 애플 apple.com 프로모 카드 실측 비율 (344x486) */
+  flex:0 0 82%;max-width:400px;aspect-ratio:344/486;  /* 82%: 오른쪽에 다음 카드 미리 보임 */
   background:var(--gray);border-radius:28px;
   padding:40px 30px;
-  scroll-snap-align:center;
+  scroll-snap-align:start;
   display:flex;flex-direction:column;text-align:left;
   overflow:hidden;  /* 좁은 화면에서 콘텐츠가 넘쳐도 카드 밖으로 삐져나오지 않도록 안전장치 */
 }
@@ -355,17 +356,18 @@ section{position:relative;}
 #location{background:var(--bg);padding-bottom:80px;}
 .loc-cards{
   display:flex;gap:20px;
-  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;  /* 세로 스크롤 차단 */
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+  scroll-padding-left:24px;
   padding:8px 24px 8px;padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 8px;
   scrollbar-width:none;
 }
 .loc-cards::-webkit-scrollbar{display:none;}
 /* 하이라이트 카드와 동일 규격 */
 .loc-card{
-  flex:0 0 86%;max-width:400px;aspect-ratio:344/486;
+  flex:0 0 82%;max-width:400px;aspect-ratio:344/486;
   background:var(--gray);border-radius:28px;
   padding:40px 30px;text-align:left;
-  scroll-snap-align:center;
+  scroll-snap-align:start;
   display:flex;flex-direction:column;justify-content:flex-start;
   overflow:hidden;  /* 좁은 화면에서 콘텐츠가 넘쳐도 카드 밖으로 삐져나오지 않도록 안전장치 */
 }
