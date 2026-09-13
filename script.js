@@ -176,7 +176,15 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   const stableH = (firstSticky?.offsetHeight) || window.screen.availHeight || window.innerHeight;
   dressSections.forEach(sec => {
     const sticky = sec.querySelector('.dress-sticky');
+    const cards = sec.querySelector('.cards');
     if (sticky) sticky.style.height = stableH + 'px';
+    if (cards) {
+      // CSS bottom:9svh는 요소 하단 기준이라, 요소가 실제 뷰포트보다 크면 카드가 보이는
+      // 영역 밖으로 밀린다. 보이는 뷰포트 하단에서 9svh 위에 카드가 오도록 재계산.
+      const visH = window.innerHeight;
+      const svh9 = Math.round(visH * 0.09);
+      cards.style.bottom = (stableH - visH + svh9) + 'px';
+    }
   });
 
   // 갤러리 진행 인디케이터: 지금 몇 번째 이야기인지 보여줘서 뒤에 더 있다는 걸 알린다
