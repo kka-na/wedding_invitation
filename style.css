@@ -39,6 +39,7 @@ html{
 /* 페이지 폭을 화면 크기에 고정 (좌우 흔들림 방지) */
 html,body{
   width:100%;max-width:100%;
+  overflow-x:hidden;             /* 폴백 (Samsung Internet ≤12) */
   overflow-x:clip;               /* hidden 대신 clip: sticky 안 깨짐 */
   overscroll-behavior-x:none;
   scrollbar-width:none;          /* 스크롤바 숨김 (Firefox) */
@@ -151,7 +152,7 @@ section{position:relative;}
 #highlights{background:var(--bg);}
 .hl-cards{
   display:flex;gap:20px;
-  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;  /* 세로 스크롤 차단 */
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;  /* 세로 스크롤 차단 */
   padding:8px 24px 28px;padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 28px;
   scrollbar-width:none;
 }
@@ -190,7 +191,7 @@ section{position:relative;}
 /* 플로팅 바로가기 (하이라이트 도달 시 표시) */
 .float-cta{
   position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:40;
-  margin-left:0;translate:-50% 0;   /* 아래쪽 중앙 정렬 */
+  margin-left:0;transform:translateX(-50%) translateY(16px);   /* 아래쪽 중앙 정렬 */
   display:flex;align-items:center;gap:12px;
   padding:9px 9px 9px 20px;border-radius:99px;
   background:rgba(255,255,255,.92);
@@ -200,7 +201,7 @@ section{position:relative;}
   opacity:0;transform:translateY(16px);pointer-events:none;
   transition:opacity .35s ease, transform .35s ease;
 }
-.float-cta.show{opacity:1;transform:none;pointer-events:auto;}
+.float-cta.show{opacity:1;transform:translateX(-50%);pointer-events:auto;}
 .float-cta i{
   width:34px;height:34px;border-radius:50%;flex:none;
   background:var(--primary);color:#fff;
@@ -236,7 +237,7 @@ section{position:relative;}
 }
 
 .dress-label{
-  position:absolute;left:28px;top:6svh;z-index:2;  /* 블러 밴드 안 텍스트 위치 */
+  position:absolute;left:28px;top:6vh;top:6svh;z-index:2;  /* 블러 밴드 안 텍스트 위치 */
   color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.35);
 }
 .dress-label{right:28px;}                     /* 본문 줄바꿈 폭 확보 */
@@ -248,7 +249,7 @@ section{position:relative;}
 .dark-label .desc{color:var(--ink2) !important;}
 /* 갤러리 5꼭지 진행 인디케이터 — 지금 몇 번째 이야기인지, 앞으로 몇 개 더 있는지 알려줌 */
 .dress-pager{
-  position:fixed;right:12px;top:6svh;z-index:50;   /* .dress-label과 같은 높이 */
+  position:fixed;right:12px;top:6vh;top:6svh;z-index:50;   /* .dress-label과 같은 높이 */
   display:flex;flex-direction:column;gap:7px;
   padding:7px 5px;border-radius:999px;
   background:rgba(0,0,0,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
@@ -268,9 +269,9 @@ section{position:relative;}
 }
 /* 서브 이미지 카드 — 블러된 메인 사진 위로 플로팅 */
 .cards{
-  position:absolute;left:0;right:0;bottom:9svh;z-index:3;  /* 아래에서 띄우는 정도 (플로팅 바로가기 버튼과 안 겹치게) */
+  position:absolute;left:0;right:0;bottom:9vh;bottom:9svh;z-index:3;  /* 아래에서 띄우는 정도 (플로팅 바로가기 버튼과 안 겹치게) */
   display:flex;align-items:flex-start;gap:14px;   /* stretch(기본값)면 auto-height 컨테이너와 aspect-ratio가 서로 맞물려 카드가 flex-basis보다 훨씬 커짐 */
-  overflow-x:auto;scroll-snap-type:x mandatory;
+  overflow-x:auto;scroll-snap-type:x proximity;
   padding:20px 24px calc(28px + env(safe-area-inset-bottom));padding:20px max(24px, calc((100vw - 980px)/2 + 24px)) calc(28px + env(safe-area-inset-bottom));
   scrollbar-width:none;
   will-change:opacity,transform;
@@ -299,7 +300,7 @@ section{position:relative;}
 #lightbox.show{opacity:1;pointer-events:auto;}
 .lb-stage{
   position:relative;margin:0 auto;
-  width:94vw;max-width:94vw;height:70dvh;max-height:70dvh;  /* 이미지 로드 전 기본값, 로드되면 JS가 실제 비율에 맞게 재조정 */
+  width:94vw;max-width:94vw;height:70vh;max-height:70vh;height:70dvh;max-height:70dvh;  /* 이미지 로드 전 기본값, 로드되면 JS가 실제 비율에 맞게 재조정 */
   overflow:hidden;
   transform:scale(.94);transition:transform .28s ease, width .3s ease, height .3s ease;
 }
@@ -354,7 +355,7 @@ section{position:relative;}
 #location{background:var(--bg);padding-bottom:80px;}
 .loc-cards{
   display:flex;gap:20px;
-  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;  /* 세로 스크롤 차단 */
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;  /* 세로 스크롤 차단 */
   padding:8px 24px 8px;padding:8px max(24px, calc((100vw - 980px)/2 + 24px)) 8px;
   scrollbar-width:none;
 }

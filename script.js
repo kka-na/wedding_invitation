@@ -212,7 +212,7 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
       start: 'top top',
       end: '+=90%',           // 뷰포트 높이의 90%만큼 스크롤하는 동안 고정 (기존 115%보다 단축)
       pin: sticky,
-      scrub: true,
+      scrub: 0.6,
       // 인디케이터는 endTrigger로 별도 구간을 잡는 대신, 5개 섹션 각각의 활성 상태를
       // 그대로 따라가게 한다 (endTrigger 기반 트리거는 핀 스페이싱 계산 순서 때문에
       // 구간이 어긋나 4·5번째 섹션에서 아예 표시되지 않는 버그가 있었음)
@@ -710,7 +710,5 @@ async function submitRSVP() {
     msg.textContent = '전달에 실패했습니다. 잠시 후 다시 시도해 주세요.';
     msg.classList.add('err');
     btn.disabled = false;
-    return;
   }
-  btn.disabled = false;
 }
