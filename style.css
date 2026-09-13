@@ -78,18 +78,9 @@ section{position:relative;}
 
 /* ---------- 1. 히어로 (전체 화면) ---------- */
 #hero{height:100svh;position:relative;overflow:hidden;text-align:center;}
-#hero > img:first-of-type,
-#hero > video{
-  width:100%;height:100%;object-fit:cover;        /* 메인 사진만 전체 화면 */
-}
-/* 영상 종료 후 크로스페이드되는 스틸 사진 */
-.hero-still{
-  position:absolute;inset:0;z-index:1;
+#hero > img{
   width:100%;height:100%;object-fit:cover;
-  opacity:0;transition:opacity 1.8s ease;   /* 전환 속도 조절 */
-  pointer-events:none;
 }
-.hero-still.show{opacity:1;}
 /* 사진 위 베일(#CECECE)이 아래→위로 부드럽게 걷혀 올라감 */
 #hero::after{
   content:'';position:absolute;top:0;left:0;right:0;height:280%;
@@ -112,52 +103,35 @@ section{position:relative;}
   #hero::after{display:none;}
   .hero-float{opacity:1;animation:none;}
 }
-/* 그라디언트 색을 부드럽게 전환하기 위한 커스텀 속성 (iOS 16.4+, 미지원 기기는 즉시 전환) */
-@property --g1{syntax:'<color>';inherits:false;initial-value:#8B8B8B;}
-@property --g2{syntax:'<color>';inherits:false;initial-value:#304352;}
 .hero-sub{
-  font-size:16px;font-weight:500;color:#304352;
-  transition:color 1.8s ease;
+  font-size:16px;font-weight:500;color:#F5F5F7;
 }
 .hero-detail{
-  margin-top:6px;
-  font-size:14px;font-weight:500;color:#304352;
+  margin-top:10px;
+  font-size:14px;font-weight:500;color:#F5F5F7;
   white-space:pre-line;
-  transition:color 1.8s ease;
 }
 .hero-title{
   font-size:clamp(32px,9vw,72px);  /* 한 줄 유지: 화면 좁으면 자동 축소 */
-  margin-top:6px;
+  margin-top:8px;
   white-space:nowrap;
-  font-weight:800;line-height:1.12;
-  --g1:#8B8B8B;--g2:#304352;                       /* 영상 모드: 진회색 */
-  background:linear-gradient(287deg, var(--g1), var(--g2));
+  font-family:'Dotum','돋움',var(--sans);
+  font-weight:800;line-height:1.12;letter-spacing:.03em;
+  background:linear-gradient(135deg, #464646 0%, #F0EDE6 15%, #8BAFC4 35%, #F0EDE6 55%, #C4956A 72%, #F0EDE6 85%, #464646 100%);
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;
-  transition:--g1 1.8s ease, --g2 1.8s ease;
 }
-/* 사진 모드(영상 종료 후): --gray 단일톤으로 전환 */
-#hero.photo .hero-title{--g1:#F5F5F7;--g2:#F5F5F7;}
-#hero.photo .hero-sub{color:#F5F5F7;}
-#hero.photo .hero-detail{color:#F5F5F7;}
 .hero-calendar-btn{
-  margin-top:18px;
+  margin-top:14px;
   display:inline-block;pointer-events:auto;cursor:pointer;
   padding:10px 16px;border-radius:99px;
-  border:1px solid rgba(48,67,82,.45);
-  background:rgba(48,67,82,.06);
-  color:#304352;font-family:var(--sans);
-  font-size:12px;font-weight:600;
-  transition:background .2s ease, border-color 1.8s ease, color 1.8s ease;
-}
-.hero-calendar-btn:active{background:rgba(48,67,82,.16);}
-#hero.photo .hero-calendar-btn{
-  border-color:rgba(255,255,255,.55);
-  margin-top:10px;
+  border:1px solid rgba(255,255,255,.55);
   background:rgba(255,255,255,.12);
-  color:#F5F5F7;
+  color:#F5F5F7;font-family:var(--sans);
+  font-size:12px;font-weight:600;
+  transition:background .2s ease;
 }
-#hero.photo .hero-calendar-btn:active{background:rgba(255,255,255,.26);}
+.hero-calendar-btn:active{background:rgba(255,255,255,.26);}
 /* 히어로 하단 중앙 버튼 (애플 스타일 알약) — D-7부터 JS가 .show 부여 */
 .hero-cta{
   position:absolute;left:50%;bottom:calc(6svh + env(safe-area-inset-bottom));z-index:6;
@@ -208,10 +182,10 @@ section{position:relative;}
 .hl-card .parents{font-size:17px;font-weight:700;line-height:2.1;letter-spacing:-.01em;}
 .hl-card .parents .rel{font-size:15px;font-weight:500;color:var(--ink2);padding:0 8px;}
 .hl-card .parents b{font-weight:700;}
-.hl-card .date-big{font-size:17px;font-weight:700;line-height:1.65;letter-spacing:-.01em;}
+.hl-card .date-big{margin-top:4px;font-size:15px;font-weight:700;line-height:1.65;letter-spacing:-.01em;}
 .hl-card .date-en{margin-top:8px;font-size:15px;font-weight:500;color:var(--ink2);}
 .hl-card .venue-name{font-size:17px;font-weight:700;letter-spacing:-.01em;}
-.hl-card .venue-addr{margin-top:8px;font-size:15px;font-weight:500;color:var(--ink2);line-height:1.7;}
+.hl-card .venue-addr{margin-top:4px;font-size:15px;font-weight:500;color:var(--ink2);line-height:1.7;}
 
 /* 플로팅 바로가기 (하이라이트 도달 시 표시) */
 .float-cta{

@@ -2,12 +2,10 @@
    설정 — 이 블록만 수정하면 됨
    ========================================================== */
 const CONFIG = {
-  // 히어로 영상 자동재생 여부 — false면 영상 재생 없이 바로 main.jpeg 사진으로 표시
-  HERO_VIDEO_ENABLED: false,
   // 히어로 타이틀 문구
   HERO_TITLE: '깜짝 빛날 시간.',
   // 타이틀 아래 날짜/장소 한 줄
-  HERO_DETAIL: '10월 25일 오후 12시 30분,\n코엑스 아셈볼룸에서 웨딩 마치.',
+  HERO_DETAIL: '10월 25일 오후 12시 30분, 코엑스 아셈볼룸에서.',
 
   // RSVP 백엔드 → 구글 스프레드시트(Apps Script 웹앱)로 연결.
   // server/rsvp-apps-script.gs 를 스프레드시트에 배포하고 나온 웹 앱 URL(…/exec)을 아래에 붙여넣을 것.
@@ -31,14 +29,14 @@ const CONFIG = {
   // [미정] 은행명·계좌번호 확정되면 아래 6줄 교체
   ACCOUNTS: {
     groom: [
-      { who: '신랑', name: '한형진', bank: '은행명', num: '000-0000-0000' },
-      { who: '아버지', name: '한정수', bank: '은행명', num: '000-0000-0000' },
-      { who: '어머니', name: '권정미', bank: '은행명', num: '000-0000-0000' },
+      { who: '신랑', name: '한형진', bank: '우리은행', num: '1002-537-260854' },
+      { who: '아버지', name: '한정수', bank: '우리은행', num: '1002-829-797373' },
+      { who: '어머니', name: '권정미', bank: '우리은행', num: '1002-232-213314' },
     ],
     bride: [
-      { who: '신부', name: '김가나', bank: '은행명', num: '000-0000-0000' },
-      { who: '아버지', name: '김창선', bank: '은행명', num: '000-0000-0000' },
-      { who: '어머니', name: '조경미', bank: '은행명', num: '000-0000-0000' },
+      { who: '신부', name: '김가나', bank: '국민은행', num: '739502-00-215708' },
+      { who: '아버지', name: '김창선', bank: '국민은행', num: '604-21-1306-180' },
+      { who: '어머니', name: '조경미', bank: '국민은행', num: '604801-04-042274' },
     ],
   },
 };
@@ -52,26 +50,6 @@ const CONFIG = {
   if (remain <= 7 * 24 * 60 * 60 * 1000) cta.classList.add('show');
 })();
 
-/* ---------- 히어로 영상 종료 → 스틸 사진 크로스페이드 ---------- */
-(function () {
-  const v = document.querySelector('#hero > video');
-  const still = document.querySelector('#hero .hero-still');
-  if (!v || !still) return;
-  const toPhoto = () => {            /* 사진 모드 전환: 스틸 페이드인 + 글자색 전환 */
-    still.classList.add('show');
-    document.getElementById('hero').classList.add('photo');
-  };
-  if (!CONFIG.HERO_VIDEO_ENABLED) {  /* 영상 비활성화: 재생 없이 바로 사진 모드 */
-    toPhoto();
-    return;
-  }
-  v.addEventListener('ended', () => {
-    toPhoto();
-    setTimeout(() => v.pause(), 2000);   /* 페이드 완료 후 영상 정지 (배터리 절약) */
-  });
-  /* 자동재생이 차단된 경우(저전력 모드 등)에도 스틸 사진으로 자연스럽게 */
-  v.play().catch(toPhoto);
-})();
 
 /* ---------- 설정값 주입 ---------- */
 document.getElementById('hero-title').textContent = CONFIG.HERO_TITLE;
@@ -131,10 +109,13 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   }
 
   btn.addEventListener('click', () => {
-    const isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
-    if (isApple) {
+    const ua = navigator.userAgent;
+    const isMobile = /iPad|iPhone|iPod|Macintosh|Android/.test(ua);
+    if (isMobile) {
+      // 모바일(iOS/Android): .ics 파일 다운로드 → 설치된 캘린더 앱(구글·삼성 등)으로 바로 연동
       downloadICS();
     } else {
+      // 데스크톱: 구글 캘린더 웹으로 열기
       window.open(buildGoogleUrl(), '_blank');
     }
   });
@@ -171,15 +152,8 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
 /* ---------- 히어로: 스크롤 블러 ---------- */
 (function () {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) {
-    const v = document.querySelector('#hero > video');   /* 모션 최소화 설정 시 영상 정지 + 사진 모드 */
-    if (v) { v.pause(); v.removeAttribute('autoplay'); }
-    const still = document.querySelector('#hero .hero-still');
-    if (still) still.classList.add('show');
-    document.getElementById('hero').classList.add('photo');
-    return;
-  }
-  const heroMedia = document.querySelectorAll('#hero > video, #hero > img');
+  if (reduce) return;
+  const heroMedia = document.querySelectorAll('#hero > img');
   const MAX_BLUR = 10;   // 필터 블러 강도 (px) — 16→10으로 낮춰 GPU 부담 완화
   let ticking = false;
   function update() {
@@ -650,7 +624,7 @@ function renderAccounts(sideKey, bodyId) {
     <div class="acc-row">
       <span class="who">${a.who}</span>
       <span class="num">${a.bank} ${a.num}<br /><small style="color:var(--ink2)">${a.name}</small></span>
-      <button class="copy-btn" onclick="copyText('${a.bank} ${a.num}')">복사</button>
+      <button class="copy-btn" onclick="copyText('${a.num.replace(/-/g, '')}')">복사</button>
     </div>`).join('');
 }
 renderAccounts('groom', 'acc-groom-body');
