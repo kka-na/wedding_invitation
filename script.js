@@ -61,31 +61,21 @@ document.getElementById('link-kakao').href = CONFIG.KAKAO_MAP_URL;
 document.getElementById('link-tmap').href = CONFIG.TMAP_MAP_URL;
 document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
 
-/* ---------- 캘린더에 추가하기: 모바일은 .ics, 데스크톱은 구글 캘린더 ---------- */
+/* ---------- 캘린더에 추가하기 ---------- */
 (function () {
   const btn = document.getElementById('hero-calendar-btn');
   const start = new Date(CONFIG.WEDDING_DATE);
   const end = new Date(start.getTime() + 60 * 60 * 1000);
   const fmtUTC = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  const fmtLocal = d => { const p = n => String(n).padStart(2,'0'); return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'T'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds()); };
   const title = '형진 ♥ 가나 결혼식';
   const location = CONFIG.VENUE_NAME + ' (' + CONFIG.VENUE_ADDR + ')';
   const details = '형진과 가나의 결혼식에 초대합니다.';
 
-  function buildICS() {
-    return [
-      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Wedding//KR',
-      'BEGIN:VEVENT',
-      'UID:' + Date.now() + '@wedding',
-      'DTSTAMP:' + fmtUTC(new Date()),
-      'DTSTART;TZID=Asia/Seoul:' + fmtLocal(start),
-      'DTEND;TZID=Asia/Seoul:' + fmtLocal(end),
-      'SUMMARY:' + title,
-      'LOCATION:' + location,
-      'DESCRIPTION:' + details,
-      'END:VEVENT', 'END:VCALENDAR',
-    ].join('\r\n');
-  }
+  // 정적 .ics 파일 URL — blob 방식은 인앱 웹뷰에서 환경별로 동작이 불안정
+  const base = window.location.href.replace(/\/[^/]*$/, '');
+  const icsUrl = base + '/wedding.ics';
+  const webcalUrl = icsUrl.replace(/^https?:\/\//, 'webcal://');
+
   function buildGoogleUrl() {
     const params = new URLSearchParams({
       action: 'TEMPLATE', text: title,
@@ -94,23 +84,19 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
     });
     return 'https://calendar.google.com/calendar/render?' + params.toString();
   }
-  function downloadICS() {
-    const blob = new Blob([buildICS()], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'wedding.ics';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
 
   btn.addEventListener('click', () => {
     const ua = navigator.userAgent;
-    const isMobile = /iPad|iPhone|iPod|Android/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-    if (isMobile) {
-      downloadICS();
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/.test(ua);
+    if (isIOS) {
+      // iOS: webcal:// → 인앱 웹뷰 포함 모든 환경에서 Calendar 앱 직접 오픈
+      window.location.href = webcalUrl;
+    } else if (isAndroid) {
+      // Android: 정적 .ics 파일 직접 링크 → 캘린더 앱으로 연동
+      window.location.href = icsUrl;
     } else {
+      // 데스크톱: 구글 캘린더 웹
       window.open(buildGoogleUrl(), '_blank');
     }
   });
@@ -184,10 +170,10 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
   const MAX_BLUR = 10;
   const dressSections = Array.from(document.querySelectorAll('.dress'));
 
-  // 주소창 유무와 무관한 고정 높이: screen.availHeight는 브라우저 주소창과 완전히 무관한
-  // 기기 화면 크기라서 어떤 타이밍에 측정해도 항상 같은 값을 반환한다.
-  // 실제 뷰포트보다 약간 크지만(기기별 50~90px), 핀 구간이 너무 일찍 끝나는 것보다 낫다.
-  const stableH = window.screen.availHeight || window.innerHeight;
+  // 주소창 유무와 무관한 고정 높이: CSS 100lvh로 브라우저가 계산한 값을 한 번만 읽어 픽셀로 고정.
+  // end: '+=90%' 같은 viewport 비율 대신 이 값을 쓰면 주소창이 접혔다 펼쳐져도 핀 구간이 안 변한다.
+  const firstSticky = dressSections[0]?.querySelector('.dress-sticky');
+  const stableH = (firstSticky?.offsetHeight) || window.screen.availHeight || window.innerHeight;
   dressSections.forEach(sec => {
     const sticky = sec.querySelector('.dress-sticky');
     if (sticky) sticky.style.height = stableH + 'px';
