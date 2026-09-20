@@ -61,47 +61,6 @@ document.getElementById('link-kakao').href = CONFIG.KAKAO_MAP_URL;
 document.getElementById('link-tmap').href = CONFIG.TMAP_MAP_URL;
 document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
 
-/* ---------- 캘린더에 추가하기 ---------- */
-(function () {
-  const btn = document.getElementById('hero-calendar-btn');
-  const start = new Date(CONFIG.WEDDING_DATE);
-  const end = new Date(start.getTime() + 60 * 60 * 1000);
-  const fmtUTC = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  const title = '형진 ♥ 가나 결혼식';
-  const location = CONFIG.VENUE_NAME + ' (' + CONFIG.VENUE_ADDR + ')';
-  const details = '형진과 가나의 결혼식에 초대합니다.';
-
-  // 정적 .ics 파일 URL — blob 방식은 인앱 웹뷰에서 환경별로 동작이 불안정
-  const base = window.location.href.replace(/\/[^/]*$/, '');
-  const icsUrl = base + '/wedding.ics';
-  const webcalUrl = icsUrl.replace(/^https?:\/\//, 'webcal://');
-
-  function buildGoogleUrl() {
-    const params = new URLSearchParams({
-      action: 'TEMPLATE', text: title,
-      dates: fmtUTC(start) + '/' + fmtUTC(end),
-      location, details,
-    });
-    return 'https://calendar.google.com/calendar/render?' + params.toString();
-  }
-
-  btn.addEventListener('click', () => {
-    const ua = navigator.userAgent;
-    const isIOS = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-    const isAndroid = /Android/.test(ua);
-    if (isIOS) {
-      // iOS: webcal:// → 인앱 웹뷰 포함 모든 환경에서 Calendar 앱 직접 오픈
-      window.location.href = webcalUrl;
-    } else if (isAndroid) {
-      // Android: 정적 .ics 파일 직접 링크 → 캘린더 앱으로 연동
-      window.location.href = icsUrl;
-    } else {
-      // 데스크톱: 구글 캘린더 웹
-      window.open(buildGoogleUrl(), '_blank');
-    }
-  });
-})();
-
 /* ---------- 네이버 지도 (키가 입력된 경우에만 로드) ---------- */
 (function () {
   if (!CONFIG.NAVER_MAP_CLIENT_ID) return;   // 키 없으면 약도 이미지 유지

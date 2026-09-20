@@ -122,17 +122,6 @@ section{position:relative;}
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;
 }
-.hero-calendar-btn{
-  margin-top:14px;
-  display:inline-block;pointer-events:auto;cursor:pointer;
-  padding:10px 16px;border-radius:99px;
-  border:1px solid rgba(255,255,255,.55);
-  background:rgba(255,255,255,.12);
-  color:#F5F5F7;font-family:var(--sans);
-  font-size:12px;font-weight:600;
-  transition:background .2s ease;
-}
-.hero-calendar-btn:active{background:rgba(255,255,255,.26);}
 /* 히어로 하단 중앙 버튼 (애플 스타일 알약) — D-7부터 JS가 .show 부여 */
 .hero-cta{
   position:absolute;left:50%;bottom:calc(6svh + env(safe-area-inset-bottom));z-index:6;
