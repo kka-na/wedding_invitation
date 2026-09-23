@@ -31,7 +31,7 @@ COMPRESS_RULES = [
     ('gallery/*-main.*',  3000, 3200, 92),   # 갤러리 메인: 풀스크린, 고화질 유지 (약 3MB 목표)
     ('gallery/*-sub*.*',  1000, 2200, 88),   # 갤러리 서브 카드 (약 1MB 목표)
     ('main.jp*g',         3000, 3200, 92),   # 히어로 poster (main.jpg/main.jpeg 둘 다 매칭) — 갤러리 메인과 동일하게 고화질 유지
-    ('thumbnail.jp*g',      500, 1600, 82),   # 카톡 og:image
+    ('thumbnail.jp*g',      3000, 3200, 92),   # 카톡 og:image
     ('rsvp/groom.*',       500, 1200, 82),   # RSVP 프로필
     ('rsvp/bridal.*',      500, 1200, 82),
     ('highlights/*.png',  1500, 1200, None), # PNG는 리샘플만 (품질 옵션 없음) — 실사진이면 jpg로 바꾸는 게 훨씬 효율적
