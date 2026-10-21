@@ -11,6 +11,10 @@
 <link rel="icon" type="image/png" href="./images/icon.png" />
 <link rel="apple-touch-icon" href="./images/icon.png" />
 
+<!-- KoPub돋움 미리 받기 (CSS 파싱 전에 다운로드 시작 → 시스템 폰트로 보이는 시간 최소화) -->
+<link rel="preload" href="./fonts/KoPubDotum-Medium.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="./fonts/KoPubDotum-Bold.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="./fonts/KoPubDotum-Light.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 
 <!-- ================================================================
@@ -36,7 +40,7 @@
       <p class="hero-title" id="hero-title">깜짝 빛날 시간.</p>
       <p class="hero-detail" id="hero-detail"></p>
     </div>
-    <a class="hero-cta" href="#location">바로가기</a>
+    <a class="hero-cta" href="#location">길안내 바로가기</a>
   </section>
 
   <!-- 2. 하이라이트 -->

@@ -1,4 +1,6 @@
-/* KoPub돋움 (자체 호스팅, fonts/ 폴더의 woff2) */
+/* KoPub돋움 (자체 호스팅, fonts/ 폴더의 woff2)
+   용량 줄이려고 서브셋 처리됨: 영문·숫자 + 완성형 한글 2350자 + 페이지에 쓰인 글자.
+   원본은 ../fonts_originals_backup/ — 흔치 않은 글자를 새로 넣으면 원본에서 다시 서브셋할 것 */
 @font-face{
   font-family:'KoPubDotum';
   src:url('./fonts/KoPubDotum-Light.woff2') format('woff2');
