@@ -40,7 +40,6 @@
       <p class="hero-title" id="hero-title">깜짝 빛날 시간.</p>
       <p class="hero-detail" id="hero-detail"></p>
     </div>
-    <a class="hero-cta" href="#location">길안내 바로가기</a>
   </section>
 
   <!-- 2. 하이라이트 -->
@@ -266,28 +265,7 @@
     </div>
   </section>
 
-  <!-- 5. 마음 전하실 곳 -->
-  <section id="account">
-    <div class="section-head fade">
-      <h2>마음 전하실 곳.</h2>
-    </div>
-    <div class="wrap">
-      <div class="acc-group fade" id="acc-groom">
-        <button class="acc-toggle" onclick="toggleAcc('acc-groom')">
-          신랑측 계좌번호 <span class="arrow">▼</span>
-        </button>
-        <div class="acc-body" id="acc-groom-body"></div>
-      </div>
-      <div class="acc-group fade" id="acc-bride">
-        <button class="acc-toggle" onclick="toggleAcc('acc-bride')">
-          신부측 계좌번호 <span class="arrow">▼</span>
-        </button>
-        <div class="acc-body" id="acc-bride-body"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6. 참석 여부 -->
+  <!-- 5. 참석 여부 -->
   <section id="rsvp">
     <div class="section-head fade">
       <h2>각자의 취향.</h2>
@@ -327,43 +305,7 @@
         <div class="prof-cell"><img loading="lazy" decoding="async" src="./images/rsvp/travle.png" alt="장소" /><p>부암동</p></div>
       </div>
     </div>
-
-    <!-- 하단 고정 버튼 -->
-    <div class="rsvp-cta">
-      <button class="rsvp-open-btn" onclick="openSheet()">참석 의사 전달하기</button>
-    </div>
   </section>
-
-
-<!-- 바텀시트 -->
-<div id="sheet-backdrop" onclick="closeSheet()"></div>
-<div id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-  <div class="sheet-handle"></div>
-  <button class="sheet-close" onclick="closeSheet()" aria-label="닫기">✕</button>
-  <h3 id="sheet-title">참석 의사 전달하기</h3>
-  <p class="sub">2026년 10월 25일 일요일 오후 12시 30분<br />코엑스 2층 아셈볼룸</p>
-
-  <div class="radio-row">
-    <label><input type="radio" name="side" value="groom" /> 신랑측</label>
-    <label><input type="radio" name="side" value="bride" /> 신부측</label>
-  </div>
-  <input id="rsvp-name" type="text" placeholder="성함을 입력해 주세요" maxlength="20" autocomplete="name" />
-  <input id="rsvp-phone" type="tel" placeholder="전화번호를 입력해 주세요" maxlength="20" autocomplete="tel" />
-  <div class="radio-row" id="attend-radios">
-    <label class="count-box">인원수
-      <input id="rsvp-count" type="number" inputmode="numeric" min="1" max="99" value="1" />
-    </label>
-    <label><input type="radio" name="attend" value="yes" /> 참석</label>
-    <label><input type="radio" name="attend" value="no" /> 불참</label>
-  </div>
-  <button id="rsvp-submit" onclick="submitRSVP()">제출</button>
-  <p id="rsvp-msg"></p>
-</div>
-
-<div id="toast"></div>
-
-<!-- 플로팅 바로가기 -->
-<a href="#location" id="goto-location" class="float-cta">예식 정보 바로가기<i>›</i></a>
 
 <!-- 카드 확대 보기 -->
 <div id="lightbox" role="dialog" aria-label="사진 크게 보기">

@@ -3,7 +3,7 @@
    ========================================================== */
 const CONFIG = {
   // 히어로 타이틀 문구
-  HERO_TITLE: '깜짝 빛날 시간.',
+  HERO_TITLE: '깜짝 빛난 시간.',
   // 타이틀 아래 날짜/장소 한 줄
   HERO_DETAIL: '10월 25일 오후 12시 30분, 코엑스 아셈볼룸에서.',
 
@@ -41,15 +41,6 @@ const CONFIG = {
   },
 };
 /* ========================================================== */
-
-/* ---------- 히어로 바로가기 버튼: D-7부터 표시 ---------- */
-(function () {
-  const cta = document.querySelector('.hero-cta');
-  if (!cta) return;
-  const remain = new Date(CONFIG.WEDDING_DATE) - Date.now();
-  if (remain <= 7 * 24 * 60 * 60 * 1000) cta.classList.add('show');
-})();
-
 
 /* ---------- 설정값 주입 ---------- */
 document.getElementById('hero-title').textContent = CONFIG.HERO_TITLE;
@@ -273,24 +264,6 @@ document.getElementById('link-coex').href = CONFIG.COEX_GUIDE_URL;
       next.disabled = i === cards.length - 1;
     }, 60);
   }, { passive: true });
-})();
-
-/* ---------- 플로팅 바로가기: 하이라이트~오시는 길 구간에서만 표시 ---------- */
-(function () {
-  const cta = document.getElementById('goto-location');
-  const hl = document.getElementById('highlights');
-  const loc = document.getElementById('location');
-  function check() {
-    const vh = window.innerHeight;
-    const passedHl = hl.getBoundingClientRect().top < vh * 0.5;   // 하이라이트 도달
-    const beforeLoc = loc.getBoundingClientRect().top > vh * 0.6; // 아직 오시는 길 전
-    cta.classList.toggle('show', passedHl && beforeLoc);
-  }
-  let ctaTicking = false;
-  window.addEventListener('scroll', () => {
-    if (!ctaTicking) { ctaTicking = true; requestAnimationFrame(() => { ctaTicking = false; check(); }); }
-  }, { passive: true });
-  check();
 })();
 
 /* ---------- 이미지 저장·복사 방지 (우클릭·드래그 차단) ---------- */
@@ -550,47 +523,6 @@ function closeLightbox() {
   window.addEventListener('resize', () => { if (lb.classList.contains('show')) fitStage(); });
 })();
 
-/* ---------- 계좌 아코디언 ---------- */
-function renderAccounts(sideKey, bodyId) {
-  const body = document.getElementById(bodyId);
-  body.innerHTML = CONFIG.ACCOUNTS[sideKey].map(a => `
-    <div class="acc-row">
-      <span class="who">${a.who}</span>
-      <span class="num">${a.bank} ${a.num}<br /><small style="color:var(--ink2)">${a.name}</small></span>
-      <button class="copy-btn" onclick="copyText('${a.num.replace(/-/g, '')}')">복사</button>
-    </div>`).join('');
-}
-renderAccounts('groom', 'acc-groom-body');
-renderAccounts('bride', 'acc-bride-body');
-
-function toggleAcc(id) {
-  document.getElementById(id).classList.toggle('open');
-}
-
-function copyText(text) {
-  const ok = () => toast('계좌번호가 복사되었습니다');
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(ok).catch(() => fallbackCopy(text, ok));
-  } else fallbackCopy(text, ok);
-}
-function fallbackCopy(text, cb) {
-  const ta = document.createElement('textarea');
-  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-  ta.readOnly = true;
-  document.body.appendChild(ta);
-  ta.setSelectionRange(0, 99999); ta.select();
-  try { document.execCommand('copy'); cb(); } catch (e) { toast('복사에 실패했습니다'); }
-  document.body.removeChild(ta);
-}
-
-let toastTimer;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
-}
-
 /* ---------- 페이드인 ---------- */
 const io = new IntersectionObserver(entries => {
   entries.forEach(e => {
@@ -598,49 +530,3 @@ const io = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.12 });
 document.querySelectorAll('.fade').forEach(el => io.observe(el));
-
-/* ---------- RSVP 바텀시트 ---------- */
-function openSheet() {
-  document.getElementById('sheet-backdrop').classList.add('show');
-  document.getElementById('sheet').classList.add('show');
-  lockBodyScroll();
-}
-function closeSheet() {
-  document.getElementById('sheet-backdrop').classList.remove('show');
-  document.getElementById('sheet').classList.remove('show');
-  unlockBodyScroll();
-}
-
-/* 구글 스프레드시트(Apps Script 웹앱)로 전송.
-   웹앱은 크로스오리진 응답에 CORS 헤더를 안 붙여주므로 mode:'no-cors'로 보내고,
-   응답 내용을 읽을 수 없는 대신 요청이 던져지면 성공으로 간주(낙관적 처리)한다. */
-async function submitRSVP() {
-  const name = document.getElementById('rsvp-name').value.trim();
-  const phone = document.getElementById('rsvp-phone').value.trim();
-  const sideEl = document.querySelector('input[name="side"]:checked');
-  const attendEl = document.querySelector('input[name="attend"]:checked');
-  const msg = document.getElementById('rsvp-msg');
-  msg.classList.remove('err');
-  if (!sideEl)   { msg.textContent = '신랑측 / 신부측을 선택해 주세요.'; msg.classList.add('err'); return; }
-  if (!name)     { msg.textContent = '성함을 입력해 주세요.'; msg.classList.add('err'); return; }
-  if (!phone)    { msg.textContent = '전화번호를 입력해 주세요.'; msg.classList.add('err'); return; }
-  if (!attendEl) { msg.textContent = '참석 / 불참을 선택해 주세요.'; msg.classList.add('err'); return; }
-
-  const btn = document.getElementById('rsvp-submit');
-  btn.disabled = true; msg.textContent = '전달 중…';
-  try {
-    const body = new FormData();
-    body.append('side', sideEl.value);
-    body.append('name', name);
-    body.append('phone', phone);
-    body.append('attend', attendEl.value);
-    body.append('count', document.getElementById('rsvp-count').value || '1');
-    await fetch(CONFIG.API_URL, { method: 'POST', mode: 'no-cors', body });
-    msg.textContent = '소중한 의사가 전달되었습니다. 감사합니다!';
-    setTimeout(closeSheet, 1500);
-  } catch (e) {
-    msg.textContent = '전달에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-    msg.classList.add('err');
-    btn.disabled = false;
-  }
-}
