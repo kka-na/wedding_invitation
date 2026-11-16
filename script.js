@@ -9,7 +9,7 @@ const CONFIG = {
 
   // RSVP 백엔드 → 구글 스프레드시트(Apps Script 웹앱)로 연결.
   // server/rsvp-apps-script.gs 를 스프레드시트에 배포하고 나온 웹 앱 URL(…/exec)을 아래에 붙여넣을 것.
-  API_URL: 'https://script.google.com/macros/s/AKfycbwIPasZAYT39n84NBOF43dSRs6rThM4AO5kbXJ6NOMeB75-x3N9oCjz72arYONQdI_y/exec',
+  API_URL: '',
 
   WEDDING_DATE: '2026-10-25T12:30:00+09:00',
 
